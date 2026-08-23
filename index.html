@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quiz 1 — Gradient Boosting & Ensemble Methods</title>
+<title>Quiz 1 — Chapter-1: Introduction to Strategic Cost Management</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 :root{
@@ -376,8 +376,8 @@ body{
 <!-- ══ START SCREEN ══ -->
 <div id="start-screen" class="screen active">
   <div class="start-hero">
-    <div class="title-l1">Quiz 1 <span>Boosting Ensembles</span></div>
-    <div class="sub-title">Gradient Boosting · XGBoost · LightGBM · CatBoost — 16 Questions · 45s Each</div>
+    <div class="title-l1">Quiz 1 <span>Introduction to Strategic Cost Management</span></div>
+    <div class="sub-title">Porter's five forces · Value chain analysis · Business Model Canvas · Value proposition canvas — 51 questions · 45s Each</div>
   </div>
   <div class="start-stats">
     <div class="stat-box"><div class="stat-num">16</div><div class="stat-lbl">Questions</div></div>
@@ -389,7 +389,6 @@ body{
     <span class="scoring-pill pill-correct">+4 Correct</span>
     <span class="scoring-pill pill-wrong">−1 Wrong</span>
     <span class="scoring-pill pill-skip">0 Skip</span>
-    <span class="scoring-pill pill-msq">MSQ: +4 all-correct · 0 partial</span>
   </div>
 
   <div class="name-card" id="name-card">
@@ -409,16 +408,15 @@ body{
   </div>
 
   <div class="topics-grid">
-    <span class="topic-tag">Gradient Boosting</span>
-    <span class="topic-tag">XGBoost</span>
-    <span class="topic-tag">LightGBM</span>
-    <span class="topic-tag">CatBoost</span>
+    <span class="topic-tag">Case Scenarios</span>
+    <span class="topic-tag">Assertions and Reason</span>
+    <span class="topic-tag">Conceptual</span>
   </div>
 
   <div style="text-align:center">
     <button class="start-btn" onclick="startQuiz()">Begin Quiz</button>
   </div>
-  <div class="start-footer">Quiz 1 · Boosting Ensembles · +4 / −1 Scoring</div>
+  <div class="start-footer">Quiz for Ch-1</div>
 </div>
 
 <!-- ══ QUIZ SCREEN ══ -->
@@ -1056,7 +1054,7 @@ function showScore(){
 
   const grade=acc!==null?acc:0;
   let title,msg;
-  if(grade>=80){title='Excellent Work';msg='Strong grasp of gradient boosting and ensemble concepts.';}
+  if(grade>=80){title='Excellent Work';msg='Strong grasp of Ch-1 concepts.';}
   else if(grade>=60){title='Good Effort';msg='Solid foundation — review the flagged topics for mastery.';}
   else{title='Keep Practicing';msg='Revisit the material and try again to strengthen your understanding.';}
   $('result-title').textContent=title;$('result-msg').textContent=msg;
