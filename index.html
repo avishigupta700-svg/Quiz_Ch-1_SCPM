@@ -781,10 +781,24 @@
 </div>
 
 <script>
-/* =========================================================
-   QUESTION BANK
-   type: s = scenario | ar = assertion-reason | c = conceptual
-========================================================= */
+/* =========================================================================
+   QUIZ LINK HUB — application script
+   ========================================================================= */
+
+/* ---------- 0. CONFIG — EDIT THESE TWO LINES FOR YOUR DEPLOYMENT ---------- */
+
+// >>> INPUT YOUR GOOGLE APPS SCRIPT WEB APP URL HERE <<<
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzTdoNGW6PSaUJs0KUppfnNvfLroxhoyPKIKBIl5AcARqyMxK0BM-a30F7hHOdeSZ338A/exec";
+
+// Admin credentials
+const ADMIN_ID = "YASH";
+const ADMIN_PASS = "3108";
+
+//add the quiz questions here//
+
+
+/* ---------- 1. QUIZ DATA PAYLOAD ---------- */
+
 const AR_OPTS = [
   "Both A and R are true, and R is the correct explanation of A",
   "Both A and R are true, but R is NOT the correct explanation of A",
@@ -1036,9 +1050,8 @@ function showScreen(id) {
   document.getElementById(id).classList.add('active');
 }
 
-/* =========================================================
-   QUIZ RENDERING
-========================================================= */
+/* ---------- 2. RENDER QUIZ GRID (staggered entrance) ---------- */
+
 function renderQuizGrid(){
   const grid = document.getElementById('quizGrid');
   grid.innerHTML = QUIZZES.map((q, i) => {
