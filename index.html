@@ -343,7 +343,7 @@ body{
     <div class="brand-icon">✦</div>
     <div>
       <div class="brand-name">Quiz 1</div>
-      <div class="brand-sub">Gradient Boosting &amp; Ensemble Methods</div>
+      <div class="brand-sub">Introduction to Strategic Cost Management</div>
     </div>
   </div>
   <div id="live-ticker" class="score-ticker" style="display:none">
@@ -380,10 +380,10 @@ body{
     <div class="sub-title">Porter's five forces · Value chain analysis · Business Model Canvas · Value proposition canvas — 51 questions · 45s Each</div>
   </div>
   <div class="start-stats">
-    <div class="stat-box"><div class="stat-num">16</div><div class="stat-lbl">Questions</div></div>
+    <div class="stat-box"><div class="stat-num" id="stat-qcount">51</div><div class="stat-lbl">Questions</div></div>
     <div class="stat-box"><div class="stat-num">45s</div><div class="stat-lbl">Per Q</div></div>
-    <div class="stat-box"><div class="stat-num">64</div><div class="stat-lbl">Max Pts</div></div>
-    <div class="stat-box"><div class="stat-num">4</div><div class="stat-lbl">Topics</div></div>
+    <div class="stat-box" id="stat-maxpts-box"><div class="stat-num" id="stat-maxpts">204</div><div class="stat-lbl">Max Pts</div></div>
+    <div class="stat-box"><div class="stat-num">3</div><div class="stat-lbl">Topics</div></div>
   </div>
   <div class="scoring-row">
     <span class="scoring-pill pill-correct">+4 Correct</span>
@@ -552,219 +552,233 @@ const QUIZ_NAME='Quiz_1';
 const WEB_APP_URL='https://script.google.com/macros/s/AKfycbzTdoNGW6PSaUJs0KUppfnNvfLroxhoyPKIKBIl5AcARqyMxK0BM-a30F7hHOdeSZ338A/exec';
 let userName='';
 
+// Standard 4-option set used by every Assertion–Reason question below.
+// (This was referenced throughout the question bank but never defined —
+// that ReferenceError was what broke the whole script and the Begin button.)
+const AR_OPTS=[
+  "Both Assertion and Reason are true, and Reason is the correct explanation of Assertion",
+  "Both Assertion and Reason are true, but Reason is NOT the correct explanation of Assertion",
+  "Assertion is true, but Reason is false",
+  "Assertion is false, but Reason is true"
+];
+
 // ════════════════════════════════════════════════════════
-//  QUESTION BANK — Quiz 1: Gradient Boosting & Ensembles
+//  QUESTION BANK — Quiz 1: Introduction to Strategic Cost Management
 // ════════════════════════════════════════════════════════
 const QUESTIONS=[
   // ---------------- SCENARIO (20) ----------------
-{type:'s', q:"An auto manufacturer skips a scheduled preventive maintenance to save cost, which later causes a major breakdown and higher corrective repair costs. Which limitation of traditional cost management does this illustrate?",
- opts:["Its short-term, reactive focus that ignores long-term consequences","Excessive reliance on value chain analysis","Over-use of Activity Based Costing","Excessive strategic positioning analysis"], ans:0,
- ex:"Traditional cost management is reactive and short-term focused; cutting cost now can raise costs later, exactly as the chapter's maintenance illustration shows."},
+{type:'s', t:'Case Scenario', q:"An auto manufacturer skips a scheduled preventive maintenance to save cost, which later causes a major breakdown and higher corrective repair costs. Which limitation of traditional cost management does this illustrate?",
+ opts:["Its short-term, reactive focus that ignores long-term consequences","Excessive reliance on value chain analysis","Over-use of Activity Based Costing","Excessive strategic positioning analysis"], a:0,
+ e:"Traditional cost management is reactive and short-term focused; cutting cost now can raise costs later, exactly as the chapter's maintenance illustration shows."},
 
-{type:'s', q:"A firm closes some service stations to cut cost, but ends up losing customers due to poor after-sale service, hurting both revenue and profit. This demonstrates:",
- opts:["That cost cutting always improves profitability","Traditional cost management's failure to consider competition, markets and customer needs","Successful cost leadership strategy","Effective value chain reconfiguration"], ans:1,
- ex:"The chapter explicitly lists 'ignores competition, market growth and customer requirements' as a key limitation of traditional cost management."},
+{type:'s', t:'Case Scenario', q:"A firm closes some service stations to cut cost, but ends up losing customers due to poor after-sale service, hurting both revenue and profit. This demonstrates:",
+ opts:["That cost cutting always improves profitability","Traditional cost management's failure to consider competition, markets and customer needs","Successful cost leadership strategy","Effective value chain reconfiguration"], a:1,
+ e:"The chapter explicitly lists 'ignores competition, market growth and customer requirements' as a key limitation of traditional cost management."},
 
-{type:'s', q:"A firm finds that service-station network quality and repair turnaround time strongly influence customers' purchase decisions in the automobile sector. Which value chain activity is most directly relevant here?",
- opts:["Inbound logistics","After-sales service","Procurement","Firm infrastructure"], ans:1,
- ex:"After-sales service covers installation, training and repair — activities occurring after the point of sale that create customer value."},
+{type:'s', t:'Case Scenario', q:"A firm finds that service-station network quality and repair turnaround time strongly influence customers' purchase decisions in the automobile sector. Which value chain activity is most directly relevant here?",
+ opts:["Inbound logistics","After-sales service","Procurement","Firm infrastructure"], a:1,
+ e:"After-sales service covers installation, training and repair — activities occurring after the point of sale that create customer value."},
 
-{type:'s', q:"A sugar mill locates its plant in UP because nearly 80% of India's sugarcane is grown there, minimising raw-material transport cost. This is value creation through which primary activity?",
- opts:["Outbound logistics","Inbound logistics","Marketing and sales","Technology development"], ans:1,
- ex:"Inbound logistics covers receiving, storing and handling raw material inputs and is deeply impacted by the location of operations."},
+{type:'s', t:'Case Scenario', q:"A sugar mill locates its plant in UP because nearly 80% of India's sugarcane is grown there, minimising raw-material transport cost. This is value creation through which primary activity?",
+ opts:["Outbound logistics","Inbound logistics","Marketing and sales","Technology development"], a:1,
+ e:"Inbound logistics covers receiving, storing and handling raw material inputs and is deeply impacted by the location of operations."},
 
-{type:'s', q:"Apple designs and markets the iPhone but outsources component manufacturing to locations with lower resource costs. This reflects value creation primarily through which activity?",
- opts:["Operations","Marketing and sales","Firm infrastructure","Procurement"], ans:0,
- ex:"Operations include transforming raw materials into finished goods; a firm may outsource activities that are not its core competence, as Apple does."},
+{type:'s', t:'Case Scenario', q:"Apple designs and markets the iPhone but outsources component manufacturing to locations with lower resource costs. This reflects value creation primarily through which activity?",
+ opts:["Operations","Marketing and sales","Firm infrastructure","Procurement"], a:0,
+ e:"Operations include transforming raw materials into finished goods; a firm may outsource activities that are not its core competence, as Apple does."},
 
-{type:'s', q:"A global fast-food chain replaces chicken patties with aloo tikki, lowers prices, and adds seating in India to fit local tastes. Which value chain activity is being adapted here?",
- opts:["Marketing and sales (marketing mix)","Inbound logistics","Human resource management","Technology development"], ans:0,
- ex:"Marketing and sales covers the marketing mix (product, price, place, promotion) — exactly what the fast-food chain modified for the Indian market."},
+{type:'s', t:'Case Scenario', q:"A global fast-food chain replaces chicken patties with aloo tikki, lowers prices, and adds seating in India to fit local tastes. Which value chain activity is being adapted here?",
+ opts:["Marketing and sales (marketing mix)","Inbound logistics","Human resource management","Technology development"], a:0,
+ e:"Marketing and sales covers the marketing mix (product, price, place, promotion) — exactly what the fast-food chain modified for the Indian market."},
 
-{type:'s', q:"A logistics firm studies fuel, tolls, driver wages and delivery volume to understand exactly what triggers changes in its transport cost. This is an application of:",
- opts:["Value proposition canvas","Cost driver analysis","Business Model Canvas","STEEPLE analysis"], ans:1,
- ex:"Cost Driver Analysis examines, quantifies and explains the monetary effects of cost drivers associated with an activity."},
+{type:'s', t:'Case Scenario', q:"A logistics firm studies fuel, tolls, driver wages and delivery volume to understand exactly what triggers changes in its transport cost. This is an application of:",
+ opts:["Value proposition canvas","Cost driver analysis","Business Model Canvas","STEEPLE analysis"], a:1,
+ e:"Cost Driver Analysis examines, quantifies and explains the monetary effects of cost drivers associated with an activity."},
 
-{type:'s', q:"A company deliberately chooses to expand product complexity and adopt advanced technology as part of its underlying economic structure, well before any daily operations begin. These choices are examples of:",
- opts:["Executional cost drivers","Structural cost drivers","Resource drivers only","Operational activities"], ans:1,
- ex:"Structural cost drivers relate to strategic choices about scale, scope, technology and complexity — and 'more' is not necessarily better here."},
+{type:'s', t:'Case Scenario', q:"A company deliberately chooses to expand product complexity and adopt advanced technology as part of its underlying economic structure, well before any daily operations begin. These choices are examples of:",
+ opts:["Executional cost drivers","Structural cost drivers","Resource drivers only","Operational activities"], a:1,
+ e:"Structural cost drivers relate to strategic choices about scale, scope, technology and complexity — and 'more' is not necessarily better here."},
 
-{type:'s', q:"A firm invests in employee involvement, quality of service, and stronger supplier links to improve how it executes its ongoing operations day to day. These represent:",
- opts:["Structural cost drivers","Executional cost drivers","A basis of market segmentation","Elements of the remote environment"], ans:1,
- ex:"Executional cost drivers relate to execution of business activities (employee utilisation, service quality, supplier links) where higher is generally better."},
+{type:'s', t:'Case Scenario', q:"A firm invests in employee involvement, quality of service, and stronger supplier links to improve how it executes its ongoing operations day to day. These represent:",
+ opts:["Structural cost drivers","Executional cost drivers","A basis of market segmentation","Elements of the remote environment"], a:1,
+ e:"Executional cost drivers relate to execution of business activities (employee utilisation, service quality, supplier links) where higher is generally better."},
 
-{type:'s', q:"Tata Motors' performance is compared against Maruti, Toyota, Honda and Hyundai, which serve the same price segment with similar features. This comparison exercise is an example of:",
- opts:["Strategic positioning analysis","Cost driver analysis","STEEPLE analysis","Value proposition mapping"], ans:0,
- ex:"Strategic Positioning Analysis studies a firm's relative position within its true peer group to set and evaluate performance targets."},
+{type:'s', t:'Case Scenario', q:"Tata Motors' performance is compared against Maruti, Toyota, Honda and Hyundai, which serve the same price segment with similar features. This comparison exercise is an example of:",
+ opts:["Strategic positioning analysis","Cost driver analysis","STEEPLE analysis","Value proposition mapping"], a:0,
+ e:"Strategic Positioning Analysis studies a firm's relative position within its true peer group to set and evaluate performance targets."},
 
-{type:'s', q:"Airline passengers can instantly compare fares across many websites and switch airlines at virtually no extra cost. Which of Porter's five forces is strongest in this situation?",
- opts:["Threat of new entrants","Bargaining power of buyers","Bargaining power of suppliers","Threat of substitutes"], ans:1,
- ex:"Buyers with full information and low switching costs have high bargaining power — exactly the airline-industry example used in the chapter."},
+{type:'s', t:'Case Scenario', q:"Airline passengers can instantly compare fares across many websites and switch airlines at virtually no extra cost. Which of Porter's five forces is strongest in this situation?",
+ opts:["Threat of new entrants","Bargaining power of buyers","Bargaining power of suppliers","Threat of substitutes"], a:1,
+ e:"Buyers with full information and low switching costs have high bargaining power — exactly the airline-industry example used in the chapter."},
 
-{type:'s', q:"Airlines depend heavily on a limited number of aircraft manufacturers and fuel suppliers, who consequently hold significant leverage over pricing and terms. This illustrates:",
- opts:["High bargaining power of suppliers","High threat of substitutes","Low rivalry among existing firms","Low threat of new entrants"], ans:0,
- ex:"A supplier group is powerful when its product is an important input and few alternative suppliers exist — as with aircraft and fuel for airlines."},
+{type:'s', t:'Case Scenario', q:"Airlines depend heavily on a limited number of aircraft manufacturers and fuel suppliers, who consequently hold significant leverage over pricing and terms. This illustrates:",
+ opts:["High bargaining power of suppliers","High threat of substitutes","Low rivalry among existing firms","Low threat of new entrants"], a:0,
+ e:"A supplier group is powerful when its product is an important input and few alternative suppliers exist — as with aircraft and fuel for airlines."},
 
-{type:'s', q:"A budget carrier faces many rival low-cost airlines, near-zero passenger switching costs, high fixed costs, and difficulty exiting the industry due to regulation. This scenario best illustrates:",
- opts:["Threat of new entrants","Intense rivalry among existing firms","Buyer bargaining power in isolation","Supplier bargaining power in isolation"], ans:1,
- ex:"Rivalry intensifies when firm numbers rise, products are homogenous, fixed costs and exit barriers are high — all present here."},
+{type:'s', t:'Case Scenario', q:"A budget carrier faces many rival low-cost airlines, near-zero passenger switching costs, high fixed costs, and difficulty exiting the industry due to regulation. This scenario best illustrates:",
+ opts:["Threat of new entrants","Intense rivalry among existing firms","Buyer bargaining power in isolation","Supplier bargaining power in isolation"], a:1,
+ e:"Rivalry intensifies when firm numbers rise, products are homogenous, fixed costs and exit barriers are high — all present here."},
 
-{type:'s', q:"A prospective airline needs heavy capital for aircraft, licenses, insurance and access to distribution channels before it can even begin operating. This scenario primarily describes:",
- opts:["High threat of substitute products","High barriers to entry limiting new entrants","Low industry profitability driven by buyer power alone","Weak rivalry among existing firms"], ans:1,
- ex:"Capital requirements, licensing and access to distribution channels are classic sources of entry barriers reducing the threat of new entrants."},
+{type:'s', t:'Case Scenario', q:"A prospective airline needs heavy capital for aircraft, licenses, insurance and access to distribution channels before it can even begin operating. This scenario primarily describes:",
+ opts:["High threat of substitute products","High barriers to entry limiting new entrants","Low industry profitability driven by buyer power alone","Weak rivalry among existing firms"], a:1,
+ e:"Capital requirements, licensing and access to distribution channels are classic sources of entry barriers reducing the threat of new entrants."},
 
-{type:'s', q:"Passengers in parts of East and Southeast Asia often prefer high-speed trains over flights for long-distance travel because trains are convenient and comparably priced. This represents which competitive force?",
- opts:["Threat of substitute products or services","Bargaining power of suppliers","Rivalry among existing firms","Threat of new entrants"], ans:0,
- ex:"A substitute (train travel) satisfying the same underlying need (travel) as air travel, at comparable value, exemplifies the threat of substitutes."},
+{type:'s', t:'Case Scenario', q:"Passengers in parts of East and Southeast Asia often prefer high-speed trains over flights for long-distance travel because trains are convenient and comparably priced. This represents which competitive force?",
+ opts:["Threat of substitute products or services","Bargaining power of suppliers","Rivalry among existing firms","Threat of new entrants"], a:0,
+ e:"A substitute (train travel) satisfying the same underlying need (travel) as air travel, at comparable value, exemplifies the threat of substitutes."},
 
-{type:'s', q:"A camera and printer manufacturer markets its products around 'capturing and preserving memories' rather than listing megapixels and specifications. This reflects the concept that:",
- opts:["Cost structure must always be disclosed to customers","A value proposition should be oriented to customer needs and problems, not just capabilities","Key resources are irrelevant to marketing","Channels determine the value proposition"], ans:1,
- ex:"The chapter stresses that a business's value proposition should be oriented to customers' needs and problems, not merely its own capabilities."},
+{type:'s', t:'Case Scenario', q:"A camera and printer manufacturer markets its products around 'capturing and preserving memories' rather than listing megapixels and specifications. This reflects the concept that:",
+ opts:["Cost structure must always be disclosed to customers","A value proposition should be oriented to customer needs and problems, not just capabilities","Key resources are irrelevant to marketing","Channels determine the value proposition"], a:1,
+ e:"The chapter stresses that a business's value proposition should be oriented to customers' needs and problems, not merely its own capabilities."},
 
-{type:'s', q:"An online video-sharing platform gives free access to most content, earns primarily through advertising, and offers a paid ad-free tier for extra features. This revenue model is best described as:",
- opts:["A pure subscription model","A freemium model","Transaction-based pricing","A licensing model"], ans:1,
- ex:"Freemium combines free access (monetised via ads) with a paid premium tier — exactly the model the chapter attributes to video-sharing platforms."},
+{type:'s', t:'Case Scenario', q:"An online video-sharing platform gives free access to most content, earns primarily through advertising, and offers a paid ad-free tier for extra features. This revenue model is best described as:",
+ opts:["A pure subscription model","A freemium model","Transaction-based pricing","A licensing model"], a:1,
+ e:"Freemium combines free access (monetised via ads) with a paid premium tier — exactly the model the chapter attributes to video-sharing platforms."},
 
-{type:'s', q:"A clothing brand creates distinct kids', men's and women's ranges — each internally similar but clearly different from the others. This illustrates a market segment that satisfies which criteria?",
- opts:["Only the 'responsive' criterion","Homogeneous internally and heterogeneous externally","Only geographic segmentation logic","No valid segmentation criteria at all"], ans:1,
- ex:"A valid segment must be homogeneous internally (similar members) and heterogeneous externally (distinct from other segments) — demographic in this case."},
+{type:'s', t:'Case Scenario', q:"A clothing brand creates distinct kids', men's and women's ranges — each internally similar but clearly different from the others. This illustrates a market segment that satisfies which criteria?",
+ opts:["Only the 'responsive' criterion","Homogeneous internally and heterogeneous externally","Only geographic segmentation logic","No valid segmentation criteria at all"], a:1,
+ e:"A valid segment must be homogeneous internally (similar members) and heterogeneous externally (distinct from other segments) — demographic in this case."},
 
-{type:'s', q:"A bank rolls out internet banking, mobile banking and ATMs, which lets a completely new entrant skip the cost of building physical branches and compete immediately. This illustrates:",
- opts:["IT/IS being usable only by large incumbents to build entry barriers","IT/IS being used by new entrants to break down existing barriers to entry","A pure threat-of-substitutes scenario unrelated to IT","An example of executional cost drivers only"], ans:1,
- ex:"The chapter explicitly notes that IT (internet/mobile banking, ATMs) can be used by new entrants to break down barriers that protect existing players."},
+{type:'s', t:'Case Scenario', q:"A bank rolls out internet banking, mobile banking and ATMs, which lets a completely new entrant skip the cost of building physical branches and compete immediately. This illustrates:",
+ opts:["IT/IS being usable only by large incumbents to build entry barriers","IT/IS being used by new entrants to break down existing barriers to entry","A pure threat-of-substitutes scenario unrelated to IT","An example of executional cost drivers only"], a:1,
+ e:"The chapter explicitly notes that IT (internet/mobile banking, ATMs) can be used by new entrants to break down barriers that protect existing players."},
 
-{type:'s', q:"While closing out a project, a management accountant deliberately factors in site-cleaning costs and displacement costs into lifecycle costing, and evaluates performance using a triple-bottom-line framework. This behaviour reflects:",
- opts:["A purely classical, shareholder-only approach to ethics","The socio-economic approach, balancing economic motive with social cost","Ignoring business ethics in favour of efficiency","An unrelated HR management practice"], ans:1,
- ex:"The socio-economic approach requires balancing economic motive and social costs — illustrated by including environmental/displacement costs and using triple bottom line."},
+{type:'s', t:'Case Scenario', q:"While closing out a project, a management accountant deliberately factors in site-cleaning costs and displacement costs into lifecycle costing, and evaluates performance using a triple-bottom-line framework. This behaviour reflects:",
+ opts:["A purely classical, shareholder-only approach to ethics","The socio-economic approach, balancing economic motive with social cost","Ignoring business ethics in favour of efficiency","An unrelated HR management practice"], a:1,
+ e:"The socio-economic approach requires balancing economic motive and social costs — illustrated by including environmental/displacement costs and using triple bottom line."},
 
 // ---------------- ASSERTION - REASON (10) ----------------
-{type:'ar', a:"Traditional cost management holds that cost cutting always results in enhanced profits.", r:"Reducing costs without regard to quality or customer needs can sometimes reduce revenue and profit instead.",
- opts: AR_OPTS, ans:3,
- ex:"Assertion is false — the chapter explicitly rejects 'cost cutting always enhances profit.' The Reason is a true, independent statement."},
+{type:'ar', t:'Assertion & Reason', q:"Assertion (A): Traditional cost management holds that cost cutting always results in enhanced profits.\nReason (R): Reducing costs without regard to quality or customer needs can sometimes reduce revenue and profit instead.",
+ opts: AR_OPTS, a:3,
+ e:"Assertion is false — the chapter explicitly rejects 'cost cutting always enhances profit.' The Reason is a true, independent statement."},
 
-{type:'ar', a:"Strategic Cost Management deals with cost in the context of both the organisation and the external environment.", r:"SCM uses cost information to develop and deploy strategy in pursuit of a sustainable competitive advantage.",
- opts: AR_OPTS, ans:0,
- ex:"Both statements are true, and the Reason correctly explains why SCM looks beyond internal cost alone — because it exists to build strategic advantage."},
+{type:'ar', t:'Assertion & Reason', q:"Assertion (A): Strategic Cost Management deals with cost in the context of both the organisation and the external environment.\nReason (R): SCM uses cost information to develop and deploy strategy in pursuit of a sustainable competitive advantage.",
+ opts: AR_OPTS, a:0,
+ e:"Both statements are true, and the Reason correctly explains why SCM looks beyond internal cost alone — because it exists to build strategic advantage."},
 
-{type:'ar', a:"Value Chain Analysis helps identify opportunities for cost leadership and product differentiation.", r:"It evaluates the cost and value contributed by each activity in a firm's value chain.",
- opts: AR_OPTS, ans:0,
- ex:"Both true; understanding each activity's cost/value is precisely how VCA surfaces opportunities for cost leadership or differentiation."},
+{type:'ar', t:'Assertion & Reason', q:"Assertion (A): Value Chain Analysis helps identify opportunities for cost leadership and product differentiation.\nReason (R): It evaluates the cost and value contributed by each activity in a firm's value chain.",
+ opts: AR_OPTS, a:0,
+ e:"Both true; understanding each activity's cost/value is precisely how VCA surfaces opportunities for cost leadership or differentiation."},
 
-{type:'ar', a:"The Value Shop Model's primary activities are identical to those of Porter's generic Value Chain.", r:"The Value Shop Model is oriented towards solving customer problems rather than sequential value addition.",
- opts: AR_OPTS, ans:3,
- ex:"Assertion is false — Value Shop activities (Problem Finding, Problem Solving, Choice, Execution, Control, Evaluation) differ from the Value Chain's primary activities. The Reason is true."},
+{type:'ar', t:'Assertion & Reason', q:"Assertion (A): The Value Shop Model's primary activities are identical to those of Porter's generic Value Chain.\nReason (R): The Value Shop Model is oriented towards solving customer problems rather than sequential value addition.",
+ opts: AR_OPTS, a:3,
+ e:"Assertion is false — Value Shop activities (Problem Finding, Problem Solving, Choice, Execution, Control, Evaluation) differ from the Value Chain's primary activities. The Reason is true."},
 
-{type:'ar', a:"Structural cost drivers relate to strategic choices about an organisation's scale, scope and use of technology.", r:"For structural cost drivers, it is always true that 'more is better.'",
- opts: AR_OPTS, ans:2,
- ex:"The Assertion is correct, but the chapter explicitly states it is NOT necessary that more is better for structural cost drivers, so the Reason is false."},
+{type:'ar', t:'Assertion & Reason', q:"Assertion (A): Structural cost drivers relate to strategic choices about an organisation's scale, scope and use of technology.\nReason (R): For structural cost drivers, it is always true that 'more is better.'",
+ opts: AR_OPTS, a:2,
+ e:"The Assertion is correct, but the chapter explicitly states it is NOT necessary that more is better for structural cost drivers, so the Reason is false."},
 
-{type:'ar', a:"A company can, in principle, compete on low cost and be differentiated at the same time.", r:"However, companies that try to be all things to all customers risk getting 'stuck in the middle' — a mistake Porter calls the 'kiss of death.'",
- opts: AR_OPTS, ans:0,
- ex:"Both true; the Reason correctly qualifies and explains the risk behind the Assertion, exactly as stated in the chapter's 'Do You Know?' box."},
+{type:'ar', t:'Assertion & Reason', q:"Assertion (A): A company can, in principle, compete on low cost and be differentiated at the same time.\nReason (R): However, companies that try to be all things to all customers risk getting 'stuck in the middle' — a mistake Porter calls the 'kiss of death.'",
+ opts: AR_OPTS, a:0,
+ e:"Both true; the Reason correctly qualifies and explains the risk behind the Assertion, exactly as stated in the chapter's 'Do You Know?' box."},
 
-{type:'ar', a:"In Osterwalder's Business Model Canvas, the Value Proposition is the ninth element connecting cost-side and revenue-side elements.", r:"Value Proposition links Key Partners/Activities/Resources/Cost Structure with Customer Relationships/Channels/Segments/Revenue Streams.",
- opts: AR_OPTS, ans:0,
- ex:"Both statements are true, and the Reason directly explains the connecting role of Value Proposition described in the chapter."},
+{type:'ar', t:'Assertion & Reason', q:"Assertion (A): In Osterwalder's Business Model Canvas, the Value Proposition is the ninth element connecting cost-side and revenue-side elements.\nReason (R): Value Proposition links Key Partners/Activities/Resources/Cost Structure with Customer Relationships/Channels/Segments/Revenue Streams.",
+ opts: AR_OPTS, a:0,
+ e:"Both statements are true, and the Reason directly explains the connecting role of Value Proposition described in the chapter."},
 
-{type:'ar', a:"Value Chain Analysis and SWOT Analysis are both tools relevant to strategic cost management and strategic positioning.", r:"STEEPLE analysis is specifically used to study a firm's remote (macro) environment.",
- opts: AR_OPTS, ans:1,
- ex:"Both statements are independently true, but the Reason (about STEEPLE) does not explain why the Assertion (about VCA/SWOT) is true — they are unrelated claims placed together."},
+{type:'ar', t:'Assertion & Reason', q:"Assertion (A): Value Chain Analysis and SWOT Analysis are both tools relevant to strategic cost management and strategic positioning.\nReason (R): STEEPLE analysis is specifically used to study a firm's remote (macro) environment.",
+ opts: AR_OPTS, a:1,
+ e:"Both statements are independently true, but the Reason (about STEEPLE) does not explain why the Assertion (about VCA/SWOT) is true — they are unrelated claims placed together."},
 
-{type:'ar', a:"Information Technology can only help existing large firms build entry barriers against new entrants.", r:"New entrants can also use IT, such as internet and mobile banking, to bypass the branch-related cost barriers of incumbents.",
- opts: AR_OPTS, ans:3,
- ex:"The Assertion is false — IT is a double-edged tool usable by incumbents AND new entrants. The Reason is true and illustrates exactly this."},
+{type:'ar', t:'Assertion & Reason', q:"Assertion (A): Information Technology can only help existing large firms build entry barriers against new entrants.\nReason (R): New entrants can also use IT, such as internet and mobile banking, to bypass the branch-related cost barriers of incumbents.",
+ opts: AR_OPTS, a:3,
+ e:"The Assertion is false — IT is a double-edged tool usable by incumbents AND new entrants. The Reason is true and illustrates exactly this."},
 
-{type:'ar', a:"The role of a Management Accountant today is limited to stewardship accounting and historical reporting.", r:"The modern Management Accountant's role has expanded to include analysis, planning, innovation and leadership.",
- opts: AR_OPTS, ans:3,
- ex:"Assertion is false — the chapter explicitly describes the transformed role going well beyond stewardship accounting. The Reason correctly states the expanded role."},
+{type:'ar', t:'Assertion & Reason', q:"Assertion (A): The role of a Management Accountant today is limited to stewardship accounting and historical reporting.\nReason (R): The modern Management Accountant's role has expanded to include analysis, planning, innovation and leadership.",
+ opts: AR_OPTS, a:3,
+ e:"Assertion is false — the chapter explicitly describes the transformed role going well beyond stewardship accounting. The Reason correctly states the expanded role."},
 
 // ---------------- CONCEPTUAL (20) ----------------
-{type:'c', q:"Which of the following best differentiates cost control from cost management as per the chapter?",
- opts:["Cost control focuses on containment of the status quo; cost management widens the scope to reduction and value enhancement","Cost control considers the external environment while cost management does not","Cost management is merely a subset of cost accounting","There is no meaningful difference between the two"], ans:0,
- ex:"The chapter traces the shift from cost containment (control, maintaining status quo) to the wider concept of cost management (reduction and value)."},
+{type:'c', t:'Conceptual', q:"Which of the following best differentiates cost control from cost management as per the chapter?",
+ opts:["Cost control focuses on containment of the status quo; cost management widens the scope to reduction and value enhancement","Cost control considers the external environment while cost management does not","Cost management is merely a subset of cost accounting","There is no meaningful difference between the two"], a:0,
+ e:"The chapter traces the shift from cost containment (control, maintaining status quo) to the wider concept of cost management (reduction and value)."},
 
-{type:'c', q:"Per the 'Evolution of cost concepts over time horizon' figure, which is the correct sequence?",
- opts:["Cost Ascertainment → Cost Control → Traditional Cost Management → Strategic Cost Management","Cost Control → Cost Ascertainment → Strategic Cost Management → Traditional Cost Management","Strategic Cost Management → Traditional Cost Management → Cost Control → Cost Ascertainment","Cost Ascertainment → Strategic Cost Management → Cost Control → Traditional Cost Management"], ans:0,
- ex:"Figure A.1 in the chapter shows exactly this sequence: Ascertainment → Control (Containment) → Traditional CM (Reduction) → SCM (Aligning costs to strategy)."},
+{type:'c', t:'Conceptual', q:"Per the 'Evolution of cost concepts over time horizon' figure, which is the correct sequence?",
+ opts:["Cost Ascertainment → Cost Control → Traditional Cost Management → Strategic Cost Management","Cost Control → Cost Ascertainment → Strategic Cost Management → Traditional Cost Management","Strategic Cost Management → Traditional Cost Management → Cost Control → Cost Ascertainment","Cost Ascertainment → Strategic Cost Management → Cost Control → Traditional Cost Management"], a:0,
+ e:"Figure A.1 in the chapter shows exactly this sequence: Ascertainment → Control (Containment) → Traditional CM (Reduction) → SCM (Aligning costs to strategy)."},
 
-{type:'c', q:"Which pillar of Strategic Cost Management is described as helping define the 'optimal strategic position,' which in turn aids in identifying relevant cost drivers?",
- opts:["Cost driver analysis, standing alone","Value chain analysis","Segmentation analysis","STEEPLE analysis"], ans:1,
- ex:"The chapter states: 'understanding the value chain will help in defining the optimal strategic position... and eventually both will help in identifying relevant cost drivers.'"},
+{type:'c', t:'Conceptual', q:"Which pillar of Strategic Cost Management is described as helping define the 'optimal strategic position,' which in turn aids in identifying relevant cost drivers?",
+ opts:["Cost driver analysis, standing alone","Value chain analysis","Segmentation analysis","STEEPLE analysis"], a:1,
+ e:"The chapter states: 'understanding the value chain will help in defining the optimal strategic position... and eventually both will help in identifying relevant cost drivers.'"},
 
-{type:'c', q:"In Porter's generic value chain, 'Margin' is best defined as:",
- opts:["Revenue minus support-activity cost only","The excess of value a customer is willing to pay over the firm's cost for the product","Net profit after tax","The gap between primary and secondary activities in rupee terms"], ans:1,
- ex:"Margin is explicitly defined as the excess of value the customer is willing to pay over the cost incurred by the firm for the product."},
+{type:'c', t:'Conceptual', q:"In Porter's generic value chain, 'Margin' is best defined as:",
+ opts:["Revenue minus support-activity cost only","The excess of value a customer is willing to pay over the firm's cost for the product","Net profit after tax","The gap between primary and secondary activities in rupee terms"], a:1,
+ e:"Margin is explicitly defined as the excess of value the customer is willing to pay over the cost incurred by the firm for the product."},
 
-{type:'c', q:"Which of the following is NOT one of the three essential analyses forming the strategic framework required for Value Chain Analysis?",
- opts:["Industry Structure Analysis","Core Competencies Analysis","Segmentation Analysis","Capital Structure Analysis"], ans:3,
- ex:"The three essential analyses are Industry Structure, Core Competencies and Segmentation Analysis — capital structure is not among them."},
+{type:'c', t:'Conceptual', q:"Which of the following is NOT one of the three essential analyses forming the strategic framework required for Value Chain Analysis?",
+ opts:["Industry Structure Analysis","Core Competencies Analysis","Segmentation Analysis","Capital Structure Analysis"], a:3,
+ e:"The three essential analyses are Industry Structure, Core Competencies and Segmentation Analysis — capital structure is not among them."},
 
-{type:'c', q:"Within 'Assessing Competitive Advantage,' Vertical Linkage Analysis specifically focuses on:",
- opts:["Reducing costs of internal processes only","Extending the value chain across the firms of suppliers and users (an extendable organisation)","Analysing only the firm's own cost drivers in isolation","Determining customer segments alone"], ans:1,
- ex:"Vertical Linkage Analysis is defined as creating an extendable organisation by extending the value chain across supplier and customer firms."},
+{type:'c', t:'Conceptual', q:"Within 'Assessing Competitive Advantage,' Vertical Linkage Analysis specifically focuses on:",
+ opts:["Reducing costs of internal processes only","Extending the value chain across the firms of suppliers and users (an extendable organisation)","Analysing only the firm's own cost drivers in isolation","Determining customer segments alone"], a:1,
+ e:"Vertical Linkage Analysis is defined as creating an extendable organisation by extending the value chain across supplier and customer firms."},
 
-{type:'c', q:"Which statement about the Value Shop Model, as discussed in the chapter, is correct?",
- opts:["It was conceptualised by Michael Porter in 1985","Its primary activities (Problem Finding, Problem Solving, Choice, Execution, Control, Evaluation) follow no fixed sequence and are cyclic","It applies exclusively to manufacturing firms","It eliminates the need for cost driver analysis entirely"], ans:1,
- ex:"The chapter states there is no fixed sequence for Value Shop activities/resources — each problem is treated uniquely and the cycle runs until a solution is reached."},
+{type:'c', t:'Conceptual', q:"Which statement about the Value Shop Model, as discussed in the chapter, is correct?",
+ opts:["It was conceptualised by Michael Porter in 1985","Its primary activities (Problem Finding, Problem Solving, Choice, Execution, Control, Evaluation) follow no fixed sequence and are cyclic","It applies exclusively to manufacturing firms","It eliminates the need for cost driver analysis entirely"], a:1,
+ e:"The chapter states there is no fixed sequence for Value Shop activities/resources — each problem is treated uniquely and the cycle runs until a solution is reached."},
 
-{type:'c', q:"In Mendelow's Matrix, which response is recommended for a stakeholder group with High Power but Low Interest?",
- opts:["Manage closely as key players","Keep satisfied","Keep informed with minimum effort (monitor only)","Ignore entirely — no action needed"], ans:1,
- ex:"Low-interest/high-power stakeholders could move into the 'high interest, high power' quadrant, so the matrix recommends keeping them satisfied."},
+{type:'c', t:'Conceptual', q:"In Mendelow's Matrix, which response is recommended for a stakeholder group with High Power but Low Interest?",
+ opts:["Manage closely as key players","Keep satisfied","Keep informed with minimum effort (monitor only)","Ignore entirely — no action needed"], a:1,
+ e:"Low-interest/high-power stakeholders could move into the 'high interest, high power' quadrant, so the matrix recommends keeping them satisfied."},
 
-{type:'c', q:"Per the chapter's discussion of interconnected entry and exit barriers, which combination is described as producing 'high, risky returns'?",
- opts:["Low entry barriers, low exit barriers","High entry barriers, low exit barriers","Low entry barriers, high exit barriers","High entry barriers, high exit barriers"], ans:3,
- ex:"Figure C.2 shows that high entry barriers combined with high exit barriers produce 'High, Risky Returns.'"},
+{type:'c', t:'Conceptual', q:"Per the chapter's discussion of interconnected entry and exit barriers, which combination is described as producing 'high, risky returns'?",
+ opts:["Low entry barriers, low exit barriers","High entry barriers, low exit barriers","Low entry barriers, high exit barriers","High entry barriers, high exit barriers"], a:3,
+ e:"Figure C.2 shows that high entry barriers combined with high exit barriers produce 'High, Risky Returns.'"},
 
-{type:'c', q:"According to Porter, if an industry has no threat of substitutes and entry is completely blocked, profitability is:",
- opts:["Guaranteed to be maximised regardless of any other force","Still potentially limited if rivalry among existing competitors is intense","Entirely irrelevant to competitive analysis","Determined solely by supplier bargaining power"], ans:1,
- ex:"The chapter explicitly states: 'Even with no substitutes and blocked entry, intense rivalry among existing competitors will limit potential returns.'"},
+{type:'c', t:'Conceptual', q:"According to Porter, if an industry has no threat of substitutes and entry is completely blocked, profitability is:",
+ opts:["Guaranteed to be maximised regardless of any other force","Still potentially limited if rivalry among existing competitors is intense","Entirely irrelevant to competitive analysis","Determined solely by supplier bargaining power"], a:1,
+ e:"The chapter explicitly states: 'Even with no substitutes and blocked entry, intense rivalry among existing competitors will limit potential returns.'"},
 
-{type:'c', q:"Which correctly traces the evolution of frameworks used for external/remote environment analysis, as described in the chapter?",
- opts:["STEEPLE → PESTEL → PEST","PEST → PESTEL → STEEPLE","PESTEL → PEST → STEEPLE","They evolved independently with no relationship to one another"], ans:1,
- ex:"The chapter states industry analysis evolved from PEST, to PESTEL (adding environment and legal), and now to STEEPLE (adding ethics)."},
+{type:'c', t:'Conceptual', q:"Which correctly traces the evolution of frameworks used for external/remote environment analysis, as described in the chapter?",
+ opts:["STEEPLE → PESTEL → PEST","PEST → PESTEL → STEEPLE","PESTEL → PEST → STEEPLE","They evolved independently with no relationship to one another"], a:1,
+ e:"The chapter states industry analysis evolved from PEST, to PESTEL (adding environment and legal), and now to STEEPLE (adding ethics)."},
 
-{type:'c', q:"In the Value Proposition Canvas, 'Gain Creators' in the Value Map specifically correspond to which element of the Customer Profile?",
- opts:["Customer Jobs","Pains","Gains","Products and Services"], ans:2,
- ex:"Gain Creators describe how a product/service creates the benefits and outcomes the customer desires — i.e., they specifically address 'Gains.'"},
+{type:'c', t:'Conceptual', q:"In the Value Proposition Canvas, 'Gain Creators' in the Value Map specifically correspond to which element of the Customer Profile?",
+ opts:["Customer Jobs","Pains","Gains","Products and Services"], a:2,
+ e:"Gain Creators describe how a product/service creates the benefits and outcomes the customer desires — i.e., they specifically address 'Gains.'"},
 
-{type:'c', q:"Which statement about the elements of Osterwalder's Business Model Canvas is INCORRECT?",
- opts:["Customer Segments, Value Proposition, Channels and Customer Relationship relate to customer focus","Key Activities, Key Resources and Key Partners relate to infrastructure","Cost Structure and Revenue Streams together signify financial viability","Value Proposition is classified purely as a cost-side (left-hand) element of the canvas"], ans:3,
- ex:"Value Proposition is the ninth, connecting element bridging cost-side and revenue-side blocks — it is not classified purely as a cost-side element."},
+{type:'c', t:'Conceptual', q:"Which statement about the elements of Osterwalder's Business Model Canvas is INCORRECT?",
+ opts:["Customer Segments, Value Proposition, Channels and Customer Relationship relate to customer focus","Key Activities, Key Resources and Key Partners relate to infrastructure","Cost Structure and Revenue Streams together signify financial viability","Value Proposition is classified purely as a cost-side (left-hand) element of the canvas"], a:3,
+ e:"Value Proposition is the ninth, connecting element bridging cost-side and revenue-side blocks — it is not classified purely as a cost-side element."},
 
-{type:'c', q:"Per Johnson, Christensen & Kaggerman's (2008) extension of the business model concept (beyond Margretta's two components), which THREE components must a business model contain?",
- opts:["Producing, Selling, Financing","Customer Value Proposition, Profit Formula, and Key Resources and Processes","Cost Structure, Revenue Streams, and Channels","Vision, Mission, and Strategy"], ans:1,
- ex:"The chapter attributes exactly these three components — Customer Value Proposition, Profit Formula, Key Resources and Processes — to the 2008 extension."},
+{type:'c', t:'Conceptual', q:"Per Johnson, Christensen & Kaggerman's (2008) extension of the business model concept (beyond Margretta's two components), which THREE components must a business model contain?",
+ opts:["Producing, Selling, Financing","Customer Value Proposition, Profit Formula, and Key Resources and Processes","Cost Structure, Revenue Streams, and Channels","Vision, Mission, and Strategy"], a:1,
+ e:"The chapter attributes exactly these three components — Customer Value Proposition, Profit Formula, Key Resources and Processes — to the 2008 extension."},
 
-{type:'c', q:"Which of the following is an INVALID criterion for recognising a valid market segment, as per the chapter?",
- opts:["Homogeneous internally","Heterogeneous externally","Clearly identifiable","Must always be the single largest group possible in the market"], ans:3,
- ex:"The chapter explicitly notes that even a small segment (e.g., limited-edition products) can be reasonable if it can be operated profitably — 'largest possible' is not a stated criterion."},
+{type:'c', t:'Conceptual', q:"Which of the following is an INVALID criterion for recognising a valid market segment, as per the chapter?",
+ opts:["Homogeneous internally","Heterogeneous externally","Clearly identifiable","Must always be the single largest group possible in the market"], a:3,
+ e:"The chapter explicitly notes that even a small segment (e.g., limited-edition products) can be reasonable if it can be operated profitably — 'largest possible' is not a stated criterion."},
 
-{type:'c', q:"Per the Denison Organizational Culture Survey findings cited in the chapter, organisations with the highest culture scores recorded an average Return on Equity of approximately:",
- opts:["6%","12%","21%","35%"], ans:2,
- ex:"The chapter cites an average ROE of 21% for organisations with the highest culture scores, versus 6% for the lowest."},
+{type:'c', t:'Conceptual', q:"Per the Denison Organizational Culture Survey findings cited in the chapter, organisations with the highest culture scores recorded an average Return on Equity of approximately:",
+ opts:["6%","12%","21%","35%"], a:2,
+ e:"The chapter cites an average ROE of 21% for organisations with the highest culture scores, versus 6% for the lowest."},
 
-{type:'c', q:"Which best captures the distinction between 'Executional' and 'Structural' cost drivers as used in Strategic Cost Management?",
- opts:["Executional drivers relate to scale/technology choices where more is not necessarily better","Executional drivers relate to execution of business activities (e.g., employee involvement, supplier links) where higher is generally better","Executional drivers apply only to short-term overhead costs under traditional costing","Executional drivers are unrelated to Strategic Cost Management altogether"], ans:1,
- ex:"Executional cost drivers concern execution — employee utilisation, service quality, supplier/client links — where 'higher is the better,' unlike structural drivers."},
+{type:'c', t:'Conceptual', q:"Which best captures the distinction between 'Executional' and 'Structural' cost drivers as used in Strategic Cost Management?",
+ opts:["Executional drivers relate to scale/technology choices where more is not necessarily better","Executional drivers relate to execution of business activities (e.g., employee involvement, supplier links) where higher is generally better","Executional drivers apply only to short-term overhead costs under traditional costing","Executional drivers are unrelated to Strategic Cost Management altogether"], a:1,
+ e:"Executional cost drivers concern execution — employee utilisation, service quality, supplier/client links — where 'higher is the better,' unlike structural drivers."},
 
-{type:'c', q:"Per Prahalad and Hamel's test of 'Core Competency,' as discussed in the chapter, which THREE parameters must a competence satisfy?",
- opts:["Relevance, Ease of imitation, Narrow application","Relevance, Difficulty of imitation, Breadth of application","Cost, Quality, Availability","Scale, Scope, Technology"], ans:1,
- ex:"A core competence must be relevant to customer choice, difficult for rivals to imitate, and broad enough to open up multiple markets."},
+{type:'c', t:'Conceptual', q:"Per Prahalad and Hamel's test of 'Core Competency,' as discussed in the chapter, which THREE parameters must a competence satisfy?",
+ opts:["Relevance, Ease of imitation, Narrow application","Relevance, Difficulty of imitation, Breadth of application","Cost, Quality, Availability","Scale, Scope, Technology"], a:1,
+ e:"A core competence must be relevant to customer choice, difficult for rivals to imitate, and broad enough to open up multiple markets."},
 
-{type:'c', q:"In Michael Earl's framework distinguishing IS, IT and IM strategy, which strategy is described as 'Business Driven,' 'Top-Down,' and 'Demand Oriented'?",
- opts:["IT Strategy","IS Strategy","IM Strategy","All three equally, per the framework"], ans:1,
- ex:"Earl's table classifies IS Strategy as Business Driven, Top-Down and Demand Oriented — resolving the scope question of 'What.'"},
+{type:'c', t:'Conceptual', q:"In Michael Earl's framework distinguishing IS, IT and IM strategy, which strategy is described as 'Business Driven,' 'Top-Down,' and 'Demand Oriented'?",
+ opts:["IT Strategy","IS Strategy","IM Strategy","All three equally, per the framework"], a:1,
+ e:"Earl's table classifies IS Strategy as Business Driven, Top-Down and Demand Oriented — resolving the scope question of 'What.'"},
 
-{type:'c', q:"Which statement best captures the chapter's distinction between a 'leader' and a 'manager' in describing the Management Accountant's evolving role?",
- opts:["Leaders maintain the status quo while managers create the vision","Leaders create vision and take risks; managers maintain status quo and control risk","Leaders and managers are treated as functionally identical in the chapter","Only managers, never leaders, can act as agents of change"], ans:1,
- ex:"The chapter's list contrasts leaders (vision, risk-taking, change agents, long-term, coaching) directly against managers (goals, risk control, status quo, direction)."},
+{type:'c', t:'Conceptual', q:"Which statement best captures the chapter's distinction between a 'leader' and a 'manager' in describing the Management Accountant's evolving role?",
+ opts:["Leaders maintain the status quo while managers create the vision","Leaders create vision and take risks; managers maintain status quo and control risk","Leaders and managers are treated as functionally identical in the chapter","Only managers, never leaders, can act as agents of change"], a:1,
+ e:"The chapter's list contrasts leaders (vision, risk-taking, change agents, long-term, coaching) directly against managers (goals, risk control, status quo, direction)."},
 
-{type:'c', q:"According to the socio-economic approach to business ethics discussed in the chapter (as opposed to the classical Milton Friedman approach), a sustainable organisation must primarily:",
- opts:["Maximise wealth for fund providers only, regardless of social cost","Balance economic motive with the social costs of its actions across stakeholders","Ignore profitability entirely in favour of social welfare","Apply ethics only when legally mandated to do so"], ans:1,
- ex:"The chapter explicitly contrasts the classical (shareholder-wealth-only) approach with the socio-economic approach, which balances economic motive and social costs for sustainability."}
+{type:'c', t:'Conceptual', q:"According to the socio-economic approach to business ethics discussed in the chapter (as opposed to the classical Milton Friedman approach), a sustainable organisation must primarily:",
+ opts:["Maximise wealth for fund providers only, regardless of social cost","Balance economic motive with the social costs of its actions across stakeholders","Ignore profitability entirely in favour of social welfare","Apply ethics only when legally mandated to do so"], a:1,
+ e:"The chapter explicitly contrasts the classical (shareholder-wealth-only) approach with the socio-economic approach, which balances economic motive and social costs for sustainability."}
 ];
 
-const MAX_PTS=QUESTIONS.filter(q=>q.type==='single').length*PTS_CORRECT + QUESTIONS.filter(q=>q.type==='multi').length*PTS_CORRECT;
+// Every question in this bank is single-select (type 's'/'ar'/'c'), so max
+// points = one question worth PTS_CORRECT each. (Previously this filtered on
+// q.type==='single'/'multi', which never matched anything here and made
+// MAX_PTS evaluate to 0 — breaking accuracy% math on the score/leaderboard screens.)
+const MAX_PTS=QUESTIONS.length*PTS_CORRECT;
 
 // ════════════════════════════════════════════════════════
 //  STATE
