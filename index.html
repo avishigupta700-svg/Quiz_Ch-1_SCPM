@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>Quiz Link Hub — AIML</title>
+<meta name="description" content="Quiz Link Hub — AI & ML quiz portal.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  // Guarded: if the Tailwind CDN script fails to load (offline, blocked, slow
+  // network), this must NOT throw — a thrown error here would halt every
+  // other inline <script> on the page, including the admin unlock logic.
+  try {
+    if (typeof tailwind !== 'undefined') {
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              display: ['Space Grotesk', 'sans-serif'],
+              body: ['Inter', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            },
+            colors: {
+              indigo: { DEFAULT: '#5B5FEF' },
+              violet: { DEFAULT: '#A855F7' },
+              cyan:   { DEFAULT: '#00D9FF' },
+            }
+          }
+        }
+      };
+    }
+  } catch (e) { /* Tailwind unavailable — CSS fallbacks below still apply */ }
+</script>
+<style>
+  :root{
+    --bg-0:#05050A;
+    --bg-1:#0A0A16;
+    --bg-2:#0F0F1E;
+    --ink:#F4F4FA;
+    --ink-soft:#B4B4C8;
+    --ink-faint:#6E6E88;
+    --indigo:#5B5FEF;
+    --violet:#A855F7;
+    --cyan:#00D9FF;
+    --white:#FFFFFF;
+    --glass-border:rgba(255,255,255,0.08);
+    --glass-bg:rgba(255,255,255,0.045);
+    --card-shadow:0 20px 60px -20px rgba(91,95,239,0.35), 0 8px 24px -12px rgba(168,85,247,0.2);
+    --radius-lg:28px;
+    --radius-md:20px;
+    --radius-sm:14px;
+    --ff-display:'Space Grotesk', sans-serif;
+    --ff-body:'Inter', sans-serif;
+    --ff-mono:'JetBrains Mono', monospace;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  .hidden{ display:none !important; } /* fallback in case Tailwind CDN is slow to load */
+
+  body{
+    font-family:var(--ff-body);
+    color:var(--ink);
+    background:
+      radial-gradient(ellipse 80% 50% at 15% -10%, rgba(91,95,239,0.22), transparent),
+      radial-gradient(ellipse 70% 50% at 100% 15%, rgba(168,85,247,0.18), transparent),
+      radial-gradient(ellipse 60% 40% at 50% 100%, rgba(0,217,255,0.14), transparent),
+      linear-gradient(170deg, var(--bg-0) 0%, var(--bg-1) 55%, var(--bg-2) 100%);
+    background-attachment:fixed;
+    min-height:100vh;
+    overflow-x:hidden;
+    position:relative;
+    cursor:none;
+  }
+
+  @media (hover:none), (pointer:coarse){
+    body{ cursor:auto; }
+    .cute-cursor, .cute-cursor-ring{ display:none !important; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important;}
+  }
+
+  /* ===== Mesh gradient background ===== */
+  #mesh-bg{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:0;
+    pointer-events:none;
+    overflow:hidden;
+  }
+  #mesh-bg .blob{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(80px);
+    opacity:0.35;
+    will-change:transform;
+  }
+  #mesh-bg .blob-1{
+    width:42vw; height:42vw; top:-10%; left:-8%;
+    background:radial-gradient(circle, var(--indigo), transparent 70%);
+    animation: drift1 22s ease-in-out infinite;
+  }
+  #mesh-bg .blob-2{
+    width:38vw; height:38vw; top:20%; right:-10%;
+    background:radial-gradient(circle, var(--violet), transparent 70%);
+    animation: drift2 26s ease-in-out infinite;
+  }
+  #mesh-bg .blob-3{
+    width:34vw; height:34vw; bottom:-12%; left:20%;
+    background:radial-gradient(circle, var(--cyan), transparent 70%);
+    animation: drift3 30s ease-in-out infinite;
+  }
+  #mesh-bg .blob-4{
+    width:26vw; height:26vw; bottom:10%; right:15%;
+    background:radial-gradient(circle, var(--indigo), transparent 70%);
+    opacity:0.22;
+    animation: drift1 18s ease-in-out infinite reverse;
+  }
+  @keyframes drift1{
+    0%,100%{ transform:translate(0,0) scale(1); }
+    50%{ transform:translate(6vw, 8vh) scale(1.12); }
+  }
+  @keyframes drift2{
+    0%,100%{ transform:translate(0,0) scale(1); }
+    50%{ transform:translate(-7vw, 6vh) scale(0.92); }
+  }
+  @keyframes drift3{
+    0%,100%{ transform:translate(0,0) scale(1); }
+    50%{ transform:translate(5vw, -6vh) scale(1.08); }
+  }
+
+  /* ===== Scrollbars ===== */
+  ::-webkit-scrollbar{ width:8px; height:8px; }
+  ::-webkit-scrollbar-track{ background:transparent; }
+  ::-webkit-scrollbar-thumb{
+    background:linear-gradient(180deg, var(--indigo), var(--violet));
+    border-radius:999px;
+  }
+  ::-webkit-scrollbar-thumb:hover{ background:linear-gradient(180deg, var(--violet), var(--cyan)); }
+  * { scrollbar-width:thin; scrollbar-color: var(--violet) transparent; }
+
+  #tableScroll::-webkit-scrollbar{ width:6px; height:6px; }
+  #tableScroll::-webkit-scrollbar-thumb{ background:rgba(168,85,247,0.5); border-radius:999px; }
+
+  /* ===== Custom cute cursor ===== */
+  .cute-cursor{
+    position:fixed;
+    top:0; left:0;
+    width:18px; height:18px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #fff, var(--cyan) 60%, var(--violet) 100%);
+    box-shadow:0 0 12px rgba(0,217,255,0.8), 0 0 4px rgba(255,255,255,0.9);
+    pointer-events:none;
+    z-index:9999;
+    transform:translate(-50%,-50%);
+    transition:width 0.15s ease, height 0.15s ease, background 0.2s ease;
+  }
+  .cute-cursor::after{
+    content:'';
+    position:absolute;
+    top:3px; left:5px;
+    width:4px; height:4px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.95);
+  }
+  .cute-cursor-ring{
+    position:fixed;
+    top:0; left:0;
+    width:34px; height:34px;
+    border-radius:50%;
+    border:1.5px solid rgba(168,85,247,0.55);
+    pointer-events:none;
+    z-index:9998;
+    transform:translate(-50%,-50%);
+    transition:width 0.2s ease, height 0.2s ease, border-color 0.2s ease, transform 0.08s linear;
+  }
+  .cursor-grow .cute-cursor{ width:30px; height:30px; }
+  .cursor-grow .cute-cursor-ring{ width:52px; height:52px; border-color:rgba(0,217,255,0.75); }
+
+  /* ===== Glass utility ===== */
+  .glass{
+    background:var(--glass-bg);
+    backdrop-filter:blur(16px) saturate(160%);
+    -webkit-backdrop-filter:blur(16px) saturate(160%);
+    border:1px solid var(--glass-border);
+  }
+
+  /* ===== Nav ===== */
+  nav.topnav{
+    position:sticky; top:0; z-index:50;
+    backdrop-filter:blur(20px) saturate(160%);
+    -webkit-backdrop-filter:blur(20px) saturate(160%);
+    background:rgba(6,6,14,0.55);
+    border-bottom:1px solid var(--glass-border);
+  }
+  .brand-dot{
+    width:10px;height:10px;border-radius:50%;
+    background:conic-gradient(from 0deg, var(--indigo), var(--violet), var(--cyan), var(--indigo));
+    animation:spin-dot 4s linear infinite;
+    box-shadow:0 0 12px rgba(91,95,239,0.6);
+  }
+  @keyframes spin-dot{ to{ transform:rotate(360deg); } }
+
+  .pfp-btn{
+    position:relative;
+    border-radius:50%;
+    overflow:hidden;
+    width:42px; height:42px;
+    border:2px solid rgba(255,255,255,0.15);
+    cursor:pointer;
+    transition:transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    background:#000;
+  }
+  .pfp-btn:hover{
+    transform:scale(1.08);
+    border-color:var(--cyan);
+    box-shadow:0 0 18px rgba(0,217,255,0.5);
+  }
+  .pfp-btn img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .pfp-btn:active{ transform:scale(0.94); }
+
+  /* ===== Buttons (from reference site) ===== */
+  .btn-grad{
+    font-family:var(--ff-body);
+    font-weight:700;
+    font-size:14px;
+    color:var(--white);
+    background:linear-gradient(120deg, var(--indigo), var(--violet));
+    padding:10px 20px;
+    border-radius:999px;
+    border:none;
+    cursor:pointer;
+    box-shadow:0 8px 20px -6px rgba(91,95,239,0.5);
+    transition:transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .btn-grad:hover{ transform:translateY(-2px); box-shadow:0 12px 28px -6px rgba(91,95,239,0.6); }
+  .btn-grad:active{ transform:translateY(0); }
+
+  .btn-outline{
+    font-family:var(--ff-body);
+    font-weight:600;
+    font-size:14px;
+    color:var(--ink);
+    background:rgba(255,255,255,0.06);
+    padding:9px 18px;
+    border-radius:999px;
+    border:1px solid var(--glass-border);
+    cursor:pointer;
+    transition:all 0.2s ease;
+  }
+  .btn-outline:hover{ background:rgba(255,255,255,0.12); border-color:rgba(255,255,255,0.25); }
+
+  /* ===== Eyebrow / hero ===== */
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:var(--ff-mono); font-size:12px; font-weight:600;
+    letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--cyan);
+    background:rgba(0,217,255,0.08);
+    border:1px solid rgba(0,217,255,0.2);
+    padding:7px 16px; border-radius:999px;
+  }
+  .eyebrow .pulse{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--cyan);
+    animation:pulse-ring 1.8s infinite;
+  }
+  @keyframes pulse-ring{
+    0%{ box-shadow:0 0 0 0 rgba(0,217,255,0.55); }
+    70%{ box-shadow:0 0 0 9px rgba(0,217,255,0); }
+    100%{ box-shadow:0 0 0 0 rgba(0,217,255,0); }
+  }
+  h1.headline .grad{
+    background:linear-gradient(100deg, var(--indigo) 10%, var(--violet) 50%, var(--cyan) 90%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    background-size:200% auto;
+    animation:grad-shift 6s ease infinite;
+  }
+  @keyframes grad-shift{ 0%,100%{ background-position:0% 50%; } 50%{ background-position:100% 50%; } }
+
+  @keyframes rise{
+    from{ opacity:0; transform:translateY(18px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .rise{ opacity:0; animation:rise 0.8s ease forwards; }
+
+  /* ===== Quiz cards ===== */
+  .quiz-card{
+    opacity:0;
+    transform:translateY(24px);
+    animation:card-in 0.7s cubic-bezier(.21,.8,.32,1) forwards;
+  }
+  @keyframes card-in{
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .quiz-card .card-inner{
+    transition:transform 0.35s cubic-bezier(.21,.8,.32,1), box-shadow 0.35s ease, border-color 0.35s ease;
+  }
+  .quiz-card:hover .card-inner{
+    transform:translateY(-6px);
+    box-shadow:0 20px 50px -12px rgba(0,217,255,0.5), 0 8px 20px -8px rgba(91,95,239,0.35);
+    border-color:rgba(0,217,255,0.35);
+  }
+  .attempt-btn{
+    display:inline-flex; align-items:center; gap:8px;
+    font-weight:700; font-size:13.5px;
+    color:var(--white);
+    background:linear-gradient(120deg, var(--indigo), var(--violet));
+    padding:10px 18px; border-radius:999px;
+    transition:background 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
+    box-shadow:0 6px 16px -6px rgba(91,95,239,0.5);
+  }
+  .attempt-btn .arrow{ transition:transform 0.25s ease; display:inline-block; }
+  .attempt-btn:hover{
+    background:linear-gradient(120deg, var(--violet), var(--cyan));
+    box-shadow:0 8px 22px -6px rgba(0,217,255,0.55);
+  }
+  .attempt-btn:hover .arrow{ transform:translateX(4px); }
+
+  .lecture-badge{
+    font-family:var(--ff-mono);
+    font-size:11px; font-weight:600; letter-spacing:0.04em;
+    color:var(--cyan);
+    background:rgba(0,217,255,0.1);
+    border:1px solid rgba(0,217,255,0.22);
+    padding:4px 10px; border-radius:999px;
+  }
+  .quiz-tag{
+    font-family:var(--ff-mono);
+    font-size:10.5px; color:var(--ink-faint);
+    background:rgba(255,255,255,0.05);
+    border:1px solid var(--glass-border);
+    padding:3px 9px; border-radius:999px;
+  }
+
+  /* ===== Modal / admin login ===== */
+  .modal-backdrop{
+    position:fixed; inset:0; z-index:200;
+    background:rgba(2,2,8,0.7);
+    backdrop-filter:blur(20px) saturate(140%);
+    -webkit-backdrop-filter:blur(20px) saturate(140%);
+    opacity:0; pointer-events:none;
+    transition:opacity 0.35s ease;
+  }
+  .modal-backdrop.show{ opacity:1; pointer-events:auto; }
+  .modal-box{
+    transform:scale(0.85) translateY(16px);
+    opacity:0;
+    transition:transform 0.45s cubic-bezier(.34,1.56,.64,1), opacity 0.3s ease;
+  }
+  .modal-backdrop.show .modal-box{ transform:scale(1) translateY(0); opacity:1; }
+
+  .neon-input{
+    background:rgba(255,255,255,0.04);
+    border:1px solid var(--glass-border);
+    color:var(--ink);
+    transition:border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  }
+  .neon-input:focus{
+    outline:none;
+    border-color:var(--cyan);
+    box-shadow:0 0 0 3px rgba(0,217,255,0.18), 0 0 18px rgba(0,217,255,0.25);
+    background:rgba(0,217,255,0.03);
+  }
+  .neon-input.err{
+    border-color:#ff4d6d;
+    box-shadow:0 0 0 3px rgba(255,77,109,0.18), 0 0 18px rgba(255,77,109,0.25);
+  }
+  @keyframes shake{
+    10%,90%{ transform:translateX(-1px); }
+    20%,80%{ transform:translateX(2px); }
+    30%,50%,70%{ transform:translateX(-4px); }
+    40%,60%{ transform:translateX(4px); }
+  }
+  .shake{ animation:shake 0.5s ease; }
+
+  /* ===== Admin dashboard ===== */
+  .kpi-card{
+    transition:transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .kpi-card:hover{ transform:translateY(-3px); box-shadow:0 16px 40px -14px rgba(91,95,239,0.4); }
+  .kpi-value{
+    font-family:var(--ff-display);
+    font-weight:700;
+    background:linear-gradient(100deg, var(--indigo), var(--violet), var(--cyan));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+
+  .pill{
+    display:inline-block;
+    font-family:var(--ff-mono);
+    font-size:12px; font-weight:700;
+    padding:3px 10px; border-radius:999px;
+  }
+  .pill-green{ background:rgba(34,197,94,0.18); color:#4ade80; }
+  .pill-yellow{ background:rgba(234,179,8,0.18); color:#facc15; }
+  .pill-red{ background:rgba(239,68,68,0.18); color:#f87171; }
+
+  table.master-table thead th{
+    position:sticky; top:0; z-index:5;
+    background:rgba(10,10,22,0.85);
+    backdrop-filter:blur(10px);
+  }
+  table.master-table tbody tr{
+    transition:background 0.15s ease;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+  }
+  table.master-table tbody tr:hover{
+    background:rgba(91,95,239,0.1);
+  }
+  .sortable{ cursor:pointer; user-select:none; }
+  .sortable:hover{ color:var(--cyan); }
+  .sort-arrow{ font-size:10px; opacity:0.6; margin-left:4px; }
+
+  .spinner{
+    width:44px; height:44px;
+    border-radius:50%;
+    border:3px solid rgba(255,255,255,0.1);
+    border-top-color:var(--cyan);
+    animation:spin 0.8s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  .skeleton{
+    background:linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.09) 37%, rgba(255,255,255,0.04) 63%);
+    background-size:400% 100%;
+    animation:skeleton-loading 1.4s ease infinite;
+  }
+  @keyframes skeleton-loading{
+    0%{ background-position:100% 50%; }
+    100%{ background-position:0 50%; }
+  }
+
+  .fade-view{
+    animation:view-in 0.5s ease forwards;
+  }
+  @keyframes view-in{
+    from{ opacity:0; transform:translateY(8px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  .toast-err{
+    animation:toast-in 0.3s ease forwards;
+  }
+  @keyframes toast-in{
+    from{ opacity:0; transform:translateY(-6px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  /* ===== Ripple effect (fires anywhere on the page, on top of everything) ===== */
+  #rippleLayer{
+    position:fixed;
+    inset:0;
+    z-index:500;
+    pointer-events:none;
+    overflow:hidden;
+  }
+  .ripple-wave{
+    position:absolute;
+    border-radius:50%;
+    pointer-events:none;
+    background:radial-gradient(circle, rgba(255,255,255,0.6) 0%, rgba(0,217,255,0.4) 38%, rgba(168,85,247,0.22) 62%, rgba(0,0,0,0) 78%);
+    transform:translate(-50%,-50%) scale(0);
+    opacity:0.9;
+    animation:ripple-out 0.9s cubic-bezier(.25,.8,.4,1) forwards;
+  }
+  @keyframes ripple-out{
+    to{ transform:translate(-50%,-50%) scale(1); opacity:0; }
+  }
+
+  /* ===== Extra ambient / entrance animations ===== */
+  nav.topnav{
+    animation:nav-drop 0.6s cubic-bezier(.21,.8,.32,1) both;
+  }
+  @keyframes nav-drop{
+    from{ opacity:0; transform:translateY(-14px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  .kpi-card{
+    animation:kpi-in 0.6s cubic-bezier(.21,.8,.32,1) both;
+  }
+  .kpi-card:nth-child(1){ animation-delay:0.02s; }
+  .kpi-card:nth-child(2){ animation-delay:0.08s; }
+  .kpi-card:nth-child(3){ animation-delay:0.14s; }
+  .kpi-card:nth-child(4){ animation-delay:0.20s; }
+  @keyframes kpi-in{
+    from{ opacity:0; transform:translateY(14px) scale(0.97); }
+    to{ opacity:1; transform:translateY(0) scale(1); }
+  }
+  .kpi-value{
+    background-size:200% auto;
+    animation:kpi-shimmer 5s ease infinite;
+  }
+  @keyframes kpi-shimmer{
+    0%,100%{ background-position:0% 50%; }
+    50%{ background-position:100% 50%; }
+  }
+
+  /* Sweep highlight across the attempt button on hover, on top of its existing gradient shift */
+  .attempt-btn{ position:relative; overflow:hidden; }
+  .attempt-btn::before{
+    content:'';
+    position:absolute;
+    top:0; left:-60%;
+    width:40%; height:100%;
+    background:linear-gradient(120deg, transparent, rgba(255,255,255,0.35), transparent);
+    transform:skewX(-20deg);
+    transition:left 0.6s ease;
+    pointer-events:none;
+  }
+  .attempt-btn:hover::before{ left:120%; }
+
+  .btn-grad{ position:relative; overflow:hidden; }
+
+  .restricted-dot{
+    animation:pulse-ring 1.8s infinite;
+  }
+
+  table.master-table tbody tr{
+    animation:row-in 0.4s ease both;
+  }
+  @keyframes row-in{
+    from{ opacity:0; transform:translateY(6px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  .pfp-btn{ position:relative; overflow:hidden; }
+
+  @media (prefers-reduced-motion: reduce){
+    .ripple-wave{ display:none !important; }
+    nav.topnav, .kpi-card, table.master-table tbody tr{ animation:none !important; opacity:1 !important; transform:none !important; }
+    .attempt-btn::before{ display:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom cute cursor -->
+<div class="cute-cursor" id="cuteCursor"></div>
+<div class="cute-cursor-ring" id="cuteCursorRing"></div>
+
+<!-- Mesh gradient background -->
+<div id="mesh-bg" aria-hidden="true">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="blob blob-4"></div>
+</div>
+
+<!-- ============================= PUBLIC VIEW ============================= -->
+<div id="publicView">
+
+  <nav class="topnav">
+    <div class="max-w-7xl mx-auto px-5 sm:px-8 py-3.5 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="brand-dot"></span>
+        <div>
+          <div class="font-display font-bold text-lg tracking-tight leading-none">Quiz Link Hub</div>
+          <div class="font-mono text-[10px] tracking-[0.14em] text-cyan uppercase mt-1">Artificial Intelligence &amp; Machine Learning</div>
+        </div>
+      </div>
+
+      <!-- Butcher profile picture — secret admin trigger (triple-click within 2s) -->
+      <button id="pfpTrigger" class="pfp-btn" title="" aria-label="profile">
+        <!-- IMAGE FILE PATH: replace src below with your own hosted image if desired.
+             Currently embedded as base64 so this file has zero external asset dependencies. -->
+        <img id="pfpImg" src="" alt="">
+      </button>
+    </div>
+  </nav>
+
+  <header class="hero max-w-4xl mx-auto px-5 sm:px-8 pt-16 pb-10 text-center">
+    <span class="eyebrow rise" style="animation-delay:0s"><span class="pulse"></span> ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING</span>
+    <h1 class="headline font-display font-bold leading-[1.03] tracking-tight mt-6 rise" style="animation-delay:0.08s; font-size:clamp(34px,6vw,58px);">
+      Pick a topic.<br class="hidden sm:block"> <span class="grad">Attempt your test.</span>
+    </h1>
+    <p class="mt-5 text-[var(--ink-soft)] max-w-xl mx-auto leading-relaxed rise" style="animation-delay:0.16s; font-size:clamp(15px,2vw,17px);">
+      Fifteen sessions, one portal. Every card below tells you exactly what that lecture covers before you attempt the quiz — pick a topic, skim what's tested, then jump in. Your score gets logged the moment you finish.
+    </p>
+
+    <!-- Quick-glance stats row -->
+    <div class="flex flex-wrap items-center justify-center gap-3 mt-8 rise" style="animation-delay:0.24s">
+      <div class="glass rounded-2xl px-5 py-3 flex items-center gap-2.5">
+        <span class="font-display font-bold text-xl kpi-value">15</span>
+        <span class="text-xs text-[var(--ink-soft)] text-left leading-tight">Quiz<br>Sessions</span>
+      </div>
+      <div class="glass rounded-2xl px-5 py-3 flex items-center gap-2.5">
+        <span class="font-display font-bold text-xl kpi-value">4</span>
+        <span class="text-xs text-[var(--ink-soft)] text-left leading-tight">Core<br>Tracks</span>
+      </div>
+      <div class="glass rounded-2xl px-5 py-3 flex items-center gap-2.5">
+        <span class="font-display font-bold text-xl kpi-value">Auto</span>
+        <span class="text-xs text-[var(--ink-soft)] text-left leading-tight">Score<br>Logging</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Track legend — groups the 15 sessions into learning tracks -->
+  <section class="max-w-6xl mx-auto px-5 sm:px-8 pb-10">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div class="glass rounded-2xl p-4">
+        <div class="flex items-center gap-2 mb-1.5">
+          <span class="w-2 h-2 rounded-full" style="background:var(--cyan); box-shadow:0 0 6px var(--cyan);"></span>
+          <span class="font-mono text-[11px] uppercase tracking-wider text-cyan">Classical ML</span>
+        </div>
+        <p class="text-[12px] text-[var(--ink-faint)] leading-snug">Boosting, clustering, anomaly detection, dimensionality reduction, tuning.</p>
+      </div>
+      <div class="glass rounded-2xl p-4">
+        <div class="flex items-center gap-2 mb-1.5">
+          <span class="w-2 h-2 rounded-full" style="background:var(--violet); box-shadow:0 0 6px var(--violet);"></span>
+          <span class="font-mono text-[11px] uppercase tracking-wider" style="color:var(--violet);">Interpretability</span>
+        </div>
+        <p class="text-[12px] text-[var(--ink-faint)] leading-snug">Explaining model decisions with SHAP and feature attribution.</p>
+      </div>
+      <div class="glass rounded-2xl p-4">
+        <div class="flex items-center gap-2 mb-1.5">
+          <span class="w-2 h-2 rounded-full" style="background:var(--indigo); box-shadow:0 0 6px var(--indigo);"></span>
+          <span class="font-mono text-[11px] uppercase tracking-wider" style="color:var(--indigo);">Deep Learning</span>
+        </div>
+        <p class="text-[12px] text-[var(--ink-faint)] leading-snug">Neural net foundations, training dynamics, and hands-on PyTorch.</p>
+      </div>
+      <div class="glass rounded-2xl p-4">
+        <div class="flex items-center gap-2 mb-1.5">
+          <span class="w-2 h-2 rounded-full" style="background:#22c55e; box-shadow:0 0 6px #22c55e;"></span>
+          <span class="font-mono text-[11px] uppercase tracking-wider text-green-400">MLOps & Systems</span>
+        </div>
+        <p class="text-[12px] text-[var(--ink-faint)] leading-snug">Deployment, CI/CD, observability, recommenders, and system design.</p>
+      </div>
+    </div>
+  </section>
+
+  <main class="max-w-7xl mx-auto px-5 sm:px-8 pb-24">
+    <div id="quizGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+  </main>
+
+  <footer class="text-center pb-10 px-5">
+    <p class="font-mono text-[11px] text-[var(--ink-faint)] tracking-wide">Quiz Link Hub — built by YASH</p>
+  </footer>
+</div>
+
+<!-- ============================= ADMIN LOGIN MODAL ============================= -->
+<div id="loginModal" class="modal-backdrop">
+  <div class="w-full h-full flex items-center justify-center px-5">
+    <div class="modal-box glass rounded-[28px] w-full max-w-sm p-7 relative" style="box-shadow:var(--card-shadow);">
+      <button id="closeModalBtn" class="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center text-[var(--ink-faint)] hover:text-white hover:bg-white/10 transition" aria-label="Close">✕</button>
+
+      <div class="flex items-center gap-2 mb-1">
+        <span class="restricted-dot w-2 h-2 rounded-full bg-cyan" style="box-shadow:0 0 8px var(--cyan);"></span>
+        <span class="font-mono text-[11px] tracking-[0.14em] uppercase text-cyan">Restricted Access</span>
+      </div>
+      <h2 class="font-display font-bold text-2xl mt-2 mb-1">Master Admin</h2>
+      <p class="text-sm text-[var(--ink-faint)] mb-6">Enter credentials to unlock the dashboard.</p>
+
+      <div id="loginError" class="hidden toast-err mb-4 px-4 py-2.5 rounded-xl text-sm font-medium" style="background:rgba(255,77,109,0.12); border:1px solid rgba(255,77,109,0.3); color:#ff8fa3;">
+        Invalid Admin ID or Password.
+      </div>
+
+      <form id="loginForm" class="space-y-4" autocomplete="off">
+        <div>
+          <label class="block text-xs font-mono uppercase tracking-wider text-[var(--ink-faint)] mb-1.5">Admin ID</label>
+          <input id="adminIdInput" type="text" class="neon-input w-full rounded-xl px-4 py-2.5 text-sm" placeholder="Enter Admin ID" autocomplete="off">
+        </div>
+        <div>
+          <label class="block text-xs font-mono uppercase tracking-wider text-[var(--ink-faint)] mb-1.5">Password</label>
+          <input id="adminPassInput" type="password" class="neon-input w-full rounded-xl px-4 py-2.5 text-sm" placeholder="••••••••" autocomplete="off">
+        </div>
+        <button type="submit" class="btn-grad w-full !rounded-xl py-3 mt-2">Unlock Dashboard</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= ADMIN DASHBOARD ============================= -->
+<div id="adminView" class="hidden">
+  <nav class="topnav">
+    <div class="max-w-7xl mx-auto px-5 sm:px-8 py-3.5 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="brand-dot"></span>
+        <div>
+          <div class="font-display font-bold text-lg tracking-tight leading-none">Master Admin Dashboard</div>
+          <div class="font-mono text-[10px] tracking-[0.14em] text-violet uppercase mt-1">Admin Panel</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <button id="refreshBtn" class="btn-outline flex items-center gap-1.5">
+          <span id="refreshIcon">↻</span> Refresh Data
+        </button>
+        <button id="logoutBtn" class="btn-grad">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto px-5 sm:px-8 py-8">
+
+    <!-- Loading state -->
+    <div id="adminLoading" class="hidden">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="glass rounded-2xl p-5 h-[104px] skeleton"></div>
+        <div class="glass rounded-2xl p-5 h-[104px] skeleton"></div>
+        <div class="glass rounded-2xl p-5 h-[104px] skeleton"></div>
+        <div class="glass rounded-2xl p-5 h-[104px] skeleton"></div>
+      </div>
+      <div class="glass rounded-2xl p-10 flex flex-col items-center justify-center gap-4">
+        <div class="spinner"></div>
+        <p class="font-mono text-sm text-[var(--ink-faint)]">Fetching submissions from all 15 quizzes…</p>
+      </div>
+    </div>
+
+    <!-- Loaded state -->
+    <div id="adminContent" class="hidden fade-view">
+
+      <!-- KPI Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="kpi-card glass rounded-2xl p-5">
+          <div class="font-mono text-[11px] uppercase tracking-wider text-[var(--ink-faint)] mb-2">Total Submissions</div>
+          <div class="kpi-value text-3xl" id="kpiTotal">0</div>
+        </div>
+        <div class="kpi-card glass rounded-2xl p-5">
+          <div class="font-mono text-[11px] uppercase tracking-wider text-[var(--ink-faint)] mb-2">Average Score</div>
+          <div class="kpi-value text-3xl" id="kpiAvgScore">0</div>
+        </div>
+        <div class="kpi-card glass rounded-2xl p-5">
+          <div class="font-mono text-[11px] uppercase tracking-wider text-[var(--ink-faint)] mb-2">Average Accuracy</div>
+          <div class="kpi-value text-3xl"><span id="kpiAvgAcc">0</span><span class="text-lg">%</span></div>
+        </div>
+        <div class="kpi-card glass rounded-2xl p-5">
+          <div class="font-mono text-[11px] uppercase tracking-wider text-[var(--ink-faint)] mb-2">Active Quizzes</div>
+          <div class="kpi-value text-3xl"><span id="kpiActiveQuizzes">0</span><span class="text-lg text-[var(--ink-faint)]">/15</span></div>
+        </div>
+      </div>
+
+      <!-- Search + table -->
+      <div class="glass rounded-2xl overflow-hidden" style="box-shadow:var(--card-shadow);">
+        <div class="p-5 border-b border-white/5 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
+          <h3 class="font-display font-bold text-lg">Master Records</h3>
+          <input id="searchInput" type="text" placeholder="Search by User ID or Quiz Name…"
+            class="neon-input rounded-xl px-4 py-2 text-sm w-full sm:w-72">
+        </div>
+        <div id="tableScroll" class="overflow-auto" style="max-height:520px;">
+          <table class="master-table w-full text-sm">
+            <thead>
+              <tr class="text-left">
+                <th class="sortable px-5 py-3 font-mono text-[11px] uppercase tracking-wider text-[var(--ink-faint)]" data-sort="timestamp">Timestamp <span class="sort-arrow"></span></th>
+                <th class="px-5 py-3 font-mono text-[11px] uppercase tracking-wider text-[var(--ink-faint)]">Quiz</th>
+                <th class="px-5 py-3 font-mono text-[11px] uppercase tracking-wider text-[var(--ink-faint)]">Student / User ID</th>
+                <th class="sortable px-5 py-3 font-mono text-[11px] uppercase tracking-wider text-[var(--ink-faint)]" data-sort="score">Score <span class="sort-arrow"></span></th>
+                <th class="sortable px-5 py-3 font-mono text-[11px] uppercase tracking-wider text-[var(--ink-faint)]" data-sort="accuracy">Accuracy <span class="sort-arrow"></span></th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+          <div id="emptyState" class="hidden text-center py-16 text-[var(--ink-faint)] font-mono text-sm">No matching records found.</div>
+        </div>
+        <div class="px-5 py-3 border-t border-white/5 flex items-center justify-between">
+          <span class="font-mono text-[11px] text-[var(--ink-faint)]" id="rowCountLabel">0 rows</span>
+          <div class="flex items-center gap-2">
+            <button id="prevPageBtn" class="btn-outline !px-3 !py-1.5 text-xs">← Prev</button>
+            <span class="font-mono text-xs text-[var(--ink-faint)]" id="pageLabel">1 / 1</span>
+            <button id="nextPageBtn" class="btn-outline !px-3 !py-1.5 text-xs">Next →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error state -->
+    <div id="adminError" class="hidden glass rounded-2xl p-10 text-center">
+      <p class="text-lg font-display font-bold mb-2">Couldn't reach the backend</p>
+      <p class="text-sm text-[var(--ink-faint)] mb-4">Check that WEB_APP_URL is set to your deployed Google Apps Script Web App URL.</p>
+      <button id="retryBtn" class="btn-grad">Try Again</button>
+    </div>
+
+  </main>
+</div>
+
+<script>
+/* =========================================================
+   QUESTION BANK
+   type: s = scenario | ar = assertion-reason | c = conceptual
+========================================================= */
+const AR_OPTS = [
+  "Both A and R are true, and R is the correct explanation of A",
+  "Both A and R are true, but R is NOT the correct explanation of A",
+  "A is true, but R is false",
+  "A is false, but R is true"
+];
+
+const QUESTIONS = [
+// ---------------- SCENARIO (20) ----------------
+{type:'s', q:"An auto manufacturer skips a scheduled preventive maintenance to save cost, which later causes a major breakdown and higher corrective repair costs. Which limitation of traditional cost management does this illustrate?",
+ opts:["Its short-term, reactive focus that ignores long-term consequences","Excessive reliance on value chain analysis","Over-use of Activity Based Costing","Excessive strategic positioning analysis"], ans:0,
+ ex:"Traditional cost management is reactive and short-term focused; cutting cost now can raise costs later, exactly as the chapter's maintenance illustration shows."},
+
+{type:'s', q:"A firm closes some service stations to cut cost, but ends up losing customers due to poor after-sale service, hurting both revenue and profit. This demonstrates:",
+ opts:["That cost cutting always improves profitability","Traditional cost management's failure to consider competition, markets and customer needs","Successful cost leadership strategy","Effective value chain reconfiguration"], ans:1,
+ ex:"The chapter explicitly lists 'ignores competition, market growth and customer requirements' as a key limitation of traditional cost management."},
+
+{type:'s', q:"A firm finds that service-station network quality and repair turnaround time strongly influence customers' purchase decisions in the automobile sector. Which value chain activity is most directly relevant here?",
+ opts:["Inbound logistics","After-sales service","Procurement","Firm infrastructure"], ans:1,
+ ex:"After-sales service covers installation, training and repair — activities occurring after the point of sale that create customer value."},
+
+{type:'s', q:"A sugar mill locates its plant in UP because nearly 80% of India's sugarcane is grown there, minimising raw-material transport cost. This is value creation through which primary activity?",
+ opts:["Outbound logistics","Inbound logistics","Marketing and sales","Technology development"], ans:1,
+ ex:"Inbound logistics covers receiving, storing and handling raw material inputs and is deeply impacted by the location of operations."},
+
+{type:'s', q:"Apple designs and markets the iPhone but outsources component manufacturing to locations with lower resource costs. This reflects value creation primarily through which activity?",
+ opts:["Operations","Marketing and sales","Firm infrastructure","Procurement"], ans:0,
+ ex:"Operations include transforming raw materials into finished goods; a firm may outsource activities that are not its core competence, as Apple does."},
+
+{type:'s', q:"A global fast-food chain replaces chicken patties with aloo tikki, lowers prices, and adds seating in India to fit local tastes. Which value chain activity is being adapted here?",
+ opts:["Marketing and sales (marketing mix)","Inbound logistics","Human resource management","Technology development"], ans:0,
+ ex:"Marketing and sales covers the marketing mix (product, price, place, promotion) — exactly what the fast-food chain modified for the Indian market."},
+
+{type:'s', q:"A logistics firm studies fuel, tolls, driver wages and delivery volume to understand exactly what triggers changes in its transport cost. This is an application of:",
+ opts:["Value proposition canvas","Cost driver analysis","Business Model Canvas","STEEPLE analysis"], ans:1,
+ ex:"Cost Driver Analysis examines, quantifies and explains the monetary effects of cost drivers associated with an activity."},
+
+{type:'s', q:"A company deliberately chooses to expand product complexity and adopt advanced technology as part of its underlying economic structure, well before any daily operations begin. These choices are examples of:",
+ opts:["Executional cost drivers","Structural cost drivers","Resource drivers only","Operational activities"], ans:1,
+ ex:"Structural cost drivers relate to strategic choices about scale, scope, technology and complexity — and 'more' is not necessarily better here."},
+
+{type:'s', q:"A firm invests in employee involvement, quality of service, and stronger supplier links to improve how it executes its ongoing operations day to day. These represent:",
+ opts:["Structural cost drivers","Executional cost drivers","A basis of market segmentation","Elements of the remote environment"], ans:1,
+ ex:"Executional cost drivers relate to execution of business activities (employee utilisation, service quality, supplier links) where higher is generally better."},
+
+{type:'s', q:"Tata Motors' performance is compared against Maruti, Toyota, Honda and Hyundai, which serve the same price segment with similar features. This comparison exercise is an example of:",
+ opts:["Strategic positioning analysis","Cost driver analysis","STEEPLE analysis","Value proposition mapping"], ans:0,
+ ex:"Strategic Positioning Analysis studies a firm's relative position within its true peer group to set and evaluate performance targets."},
+
+{type:'s', q:"Airline passengers can instantly compare fares across many websites and switch airlines at virtually no extra cost. Which of Porter's five forces is strongest in this situation?",
+ opts:["Threat of new entrants","Bargaining power of buyers","Bargaining power of suppliers","Threat of substitutes"], ans:1,
+ ex:"Buyers with full information and low switching costs have high bargaining power — exactly the airline-industry example used in the chapter."},
+
+{type:'s', q:"Airlines depend heavily on a limited number of aircraft manufacturers and fuel suppliers, who consequently hold significant leverage over pricing and terms. This illustrates:",
+ opts:["High bargaining power of suppliers","High threat of substitutes","Low rivalry among existing firms","Low threat of new entrants"], ans:0,
+ ex:"A supplier group is powerful when its product is an important input and few alternative suppliers exist — as with aircraft and fuel for airlines."},
+
+{type:'s', q:"A budget carrier faces many rival low-cost airlines, near-zero passenger switching costs, high fixed costs, and difficulty exiting the industry due to regulation. This scenario best illustrates:",
+ opts:["Threat of new entrants","Intense rivalry among existing firms","Buyer bargaining power in isolation","Supplier bargaining power in isolation"], ans:1,
+ ex:"Rivalry intensifies when firm numbers rise, products are homogenous, fixed costs and exit barriers are high — all present here."},
+
+{type:'s', q:"A prospective airline needs heavy capital for aircraft, licenses, insurance and access to distribution channels before it can even begin operating. This scenario primarily describes:",
+ opts:["High threat of substitute products","High barriers to entry limiting new entrants","Low industry profitability driven by buyer power alone","Weak rivalry among existing firms"], ans:1,
+ ex:"Capital requirements, licensing and access to distribution channels are classic sources of entry barriers reducing the threat of new entrants."},
+
+{type:'s', q:"Passengers in parts of East and Southeast Asia often prefer high-speed trains over flights for long-distance travel because trains are convenient and comparably priced. This represents which competitive force?",
+ opts:["Threat of substitute products or services","Bargaining power of suppliers","Rivalry among existing firms","Threat of new entrants"], ans:0,
+ ex:"A substitute (train travel) satisfying the same underlying need (travel) as air travel, at comparable value, exemplifies the threat of substitutes."},
+
+{type:'s', q:"A camera and printer manufacturer markets its products around 'capturing and preserving memories' rather than listing megapixels and specifications. This reflects the concept that:",
+ opts:["Cost structure must always be disclosed to customers","A value proposition should be oriented to customer needs and problems, not just capabilities","Key resources are irrelevant to marketing","Channels determine the value proposition"], ans:1,
+ ex:"The chapter stresses that a business's value proposition should be oriented to customers' needs and problems, not merely its own capabilities."},
+
+{type:'s', q:"An online video-sharing platform gives free access to most content, earns primarily through advertising, and offers a paid ad-free tier for extra features. This revenue model is best described as:",
+ opts:["A pure subscription model","A freemium model","Transaction-based pricing","A licensing model"], ans:1,
+ ex:"Freemium combines free access (monetised via ads) with a paid premium tier — exactly the model the chapter attributes to video-sharing platforms."},
+
+{type:'s', q:"A clothing brand creates distinct kids', men's and women's ranges — each internally similar but clearly different from the others. This illustrates a market segment that satisfies which criteria?",
+ opts:["Only the 'responsive' criterion","Homogeneous internally and heterogeneous externally","Only geographic segmentation logic","No valid segmentation criteria at all"], ans:1,
+ ex:"A valid segment must be homogeneous internally (similar members) and heterogeneous externally (distinct from other segments) — demographic in this case."},
+
+{type:'s', q:"A bank rolls out internet banking, mobile banking and ATMs, which lets a completely new entrant skip the cost of building physical branches and compete immediately. This illustrates:",
+ opts:["IT/IS being usable only by large incumbents to build entry barriers","IT/IS being used by new entrants to break down existing barriers to entry","A pure threat-of-substitutes scenario unrelated to IT","An example of executional cost drivers only"], ans:1,
+ ex:"The chapter explicitly notes that IT (internet/mobile banking, ATMs) can be used by new entrants to break down barriers that protect existing players."},
+
+{type:'s', q:"While closing out a project, a management accountant deliberately factors in site-cleaning costs and displacement costs into lifecycle costing, and evaluates performance using a triple-bottom-line framework. This behaviour reflects:",
+ opts:["A purely classical, shareholder-only approach to ethics","The socio-economic approach, balancing economic motive with social cost","Ignoring business ethics in favour of efficiency","An unrelated HR management practice"], ans:1,
+ ex:"The socio-economic approach requires balancing economic motive and social costs — illustrated by including environmental/displacement costs and using triple bottom line."},
+
+// ---------------- ASSERTION - REASON (10) ----------------
+{type:'ar', a:"Traditional cost management holds that cost cutting always results in enhanced profits.", r:"Reducing costs without regard to quality or customer needs can sometimes reduce revenue and profit instead.",
+ opts: AR_OPTS, ans:3,
+ ex:"Assertion is false — the chapter explicitly rejects 'cost cutting always enhances profit.' The Reason is a true, independent statement."},
+
+{type:'ar', a:"Strategic Cost Management deals with cost in the context of both the organisation and the external environment.", r:"SCM uses cost information to develop and deploy strategy in pursuit of a sustainable competitive advantage.",
+ opts: AR_OPTS, ans:0,
+ ex:"Both statements are true, and the Reason correctly explains why SCM looks beyond internal cost alone — because it exists to build strategic advantage."},
+
+{type:'ar', a:"Value Chain Analysis helps identify opportunities for cost leadership and product differentiation.", r:"It evaluates the cost and value contributed by each activity in a firm's value chain.",
+ opts: AR_OPTS, ans:0,
+ ex:"Both true; understanding each activity's cost/value is precisely how VCA surfaces opportunities for cost leadership or differentiation."},
+
+{type:'ar', a:"The Value Shop Model's primary activities are identical to those of Porter's generic Value Chain.", r:"The Value Shop Model is oriented towards solving customer problems rather than sequential value addition.",
+ opts: AR_OPTS, ans:3,
+ ex:"Assertion is false — Value Shop activities (Problem Finding, Problem Solving, Choice, Execution, Control, Evaluation) differ from the Value Chain's primary activities. The Reason is true."},
+
+{type:'ar', a:"Structural cost drivers relate to strategic choices about an organisation's scale, scope and use of technology.", r:"For structural cost drivers, it is always true that 'more is better.'",
+ opts: AR_OPTS, ans:2,
+ ex:"The Assertion is correct, but the chapter explicitly states it is NOT necessary that more is better for structural cost drivers, so the Reason is false."},
+
+{type:'ar', a:"A company can, in principle, compete on low cost and be differentiated at the same time.", r:"However, companies that try to be all things to all customers risk getting 'stuck in the middle' — a mistake Porter calls the 'kiss of death.'",
+ opts: AR_OPTS, ans:0,
+ ex:"Both true; the Reason correctly qualifies and explains the risk behind the Assertion, exactly as stated in the chapter's 'Do You Know?' box."},
+
+{type:'ar', a:"In Osterwalder's Business Model Canvas, the Value Proposition is the ninth element connecting cost-side and revenue-side elements.", r:"Value Proposition links Key Partners/Activities/Resources/Cost Structure with Customer Relationships/Channels/Segments/Revenue Streams.",
+ opts: AR_OPTS, ans:0,
+ ex:"Both statements are true, and the Reason directly explains the connecting role of Value Proposition described in the chapter."},
+
+{type:'ar', a:"Value Chain Analysis and SWOT Analysis are both tools relevant to strategic cost management and strategic positioning.", r:"STEEPLE analysis is specifically used to study a firm's remote (macro) environment.",
+ opts: AR_OPTS, ans:1,
+ ex:"Both statements are independently true, but the Reason (about STEEPLE) does not explain why the Assertion (about VCA/SWOT) is true — they are unrelated claims placed together."},
+
+{type:'ar', a:"Information Technology can only help existing large firms build entry barriers against new entrants.", r:"New entrants can also use IT, such as internet and mobile banking, to bypass the branch-related cost barriers of incumbents.",
+ opts: AR_OPTS, ans:3,
+ ex:"The Assertion is false — IT is a double-edged tool usable by incumbents AND new entrants. The Reason is true and illustrates exactly this."},
+
+{type:'ar', a:"The role of a Management Accountant today is limited to stewardship accounting and historical reporting.", r:"The modern Management Accountant's role has expanded to include analysis, planning, innovation and leadership.",
+ opts: AR_OPTS, ans:3,
+ ex:"Assertion is false — the chapter explicitly describes the transformed role going well beyond stewardship accounting. The Reason correctly states the expanded role."},
+
+// ---------------- CONCEPTUAL (20) ----------------
+{type:'c', q:"Which of the following best differentiates cost control from cost management as per the chapter?",
+ opts:["Cost control focuses on containment of the status quo; cost management widens the scope to reduction and value enhancement","Cost control considers the external environment while cost management does not","Cost management is merely a subset of cost accounting","There is no meaningful difference between the two"], ans:0,
+ ex:"The chapter traces the shift from cost containment (control, maintaining status quo) to the wider concept of cost management (reduction and value)."},
+
+{type:'c', q:"Per the 'Evolution of cost concepts over time horizon' figure, which is the correct sequence?",
+ opts:["Cost Ascertainment → Cost Control → Traditional Cost Management → Strategic Cost Management","Cost Control → Cost Ascertainment → Strategic Cost Management → Traditional Cost Management","Strategic Cost Management → Traditional Cost Management → Cost Control → Cost Ascertainment","Cost Ascertainment → Strategic Cost Management → Cost Control → Traditional Cost Management"], ans:0,
+ ex:"Figure A.1 in the chapter shows exactly this sequence: Ascertainment → Control (Containment) → Traditional CM (Reduction) → SCM (Aligning costs to strategy)."},
+
+{type:'c', q:"Which pillar of Strategic Cost Management is described as helping define the 'optimal strategic position,' which in turn aids in identifying relevant cost drivers?",
+ opts:["Cost driver analysis, standing alone","Value chain analysis","Segmentation analysis","STEEPLE analysis"], ans:1,
+ ex:"The chapter states: 'understanding the value chain will help in defining the optimal strategic position... and eventually both will help in identifying relevant cost drivers.'"},
+
+{type:'c', q:"In Porter's generic value chain, 'Margin' is best defined as:",
+ opts:["Revenue minus support-activity cost only","The excess of value a customer is willing to pay over the firm's cost for the product","Net profit after tax","The gap between primary and secondary activities in rupee terms"], ans:1,
+ ex:"Margin is explicitly defined as the excess of value the customer is willing to pay over the cost incurred by the firm for the product."},
+
+{type:'c', q:"Which of the following is NOT one of the three essential analyses forming the strategic framework required for Value Chain Analysis?",
+ opts:["Industry Structure Analysis","Core Competencies Analysis","Segmentation Analysis","Capital Structure Analysis"], ans:3,
+ ex:"The three essential analyses are Industry Structure, Core Competencies and Segmentation Analysis — capital structure is not among them."},
+
+{type:'c', q:"Within 'Assessing Competitive Advantage,' Vertical Linkage Analysis specifically focuses on:",
+ opts:["Reducing costs of internal processes only","Extending the value chain across the firms of suppliers and users (an extendable organisation)","Analysing only the firm's own cost drivers in isolation","Determining customer segments alone"], ans:1,
+ ex:"Vertical Linkage Analysis is defined as creating an extendable organisation by extending the value chain across supplier and customer firms."},
+
+{type:'c', q:"Which statement about the Value Shop Model, as discussed in the chapter, is correct?",
+ opts:["It was conceptualised by Michael Porter in 1985","Its primary activities (Problem Finding, Problem Solving, Choice, Execution, Control, Evaluation) follow no fixed sequence and are cyclic","It applies exclusively to manufacturing firms","It eliminates the need for cost driver analysis entirely"], ans:1,
+ ex:"The chapter states there is no fixed sequence for Value Shop activities/resources — each problem is treated uniquely and the cycle runs until a solution is reached."},
+
+{type:'c', q:"In Mendelow's Matrix, which response is recommended for a stakeholder group with High Power but Low Interest?",
+ opts:["Manage closely as key players","Keep satisfied","Keep informed with minimum effort (monitor only)","Ignore entirely — no action needed"], ans:1,
+ ex:"Low-interest/high-power stakeholders could move into the 'high interest, high power' quadrant, so the matrix recommends keeping them satisfied."},
+
+{type:'c', q:"Per the chapter's discussion of interconnected entry and exit barriers, which combination is described as producing 'high, risky returns'?",
+ opts:["Low entry barriers, low exit barriers","High entry barriers, low exit barriers","Low entry barriers, high exit barriers","High entry barriers, high exit barriers"], ans:3,
+ ex:"Figure C.2 shows that high entry barriers combined with high exit barriers produce 'High, Risky Returns.'"},
+
+{type:'c', q:"According to Porter, if an industry has no threat of substitutes and entry is completely blocked, profitability is:",
+ opts:["Guaranteed to be maximised regardless of any other force","Still potentially limited if rivalry among existing competitors is intense","Entirely irrelevant to competitive analysis","Determined solely by supplier bargaining power"], ans:1,
+ ex:"The chapter explicitly states: 'Even with no substitutes and blocked entry, intense rivalry among existing competitors will limit potential returns.'"},
+
+{type:'c', q:"Which correctly traces the evolution of frameworks used for external/remote environment analysis, as described in the chapter?",
+ opts:["STEEPLE → PESTEL → PEST","PEST → PESTEL → STEEPLE","PESTEL → PEST → STEEPLE","They evolved independently with no relationship to one another"], ans:1,
+ ex:"The chapter states industry analysis evolved from PEST, to PESTEL (adding environment and legal), and now to STEEPLE (adding ethics)."},
+
+{type:'c', q:"In the Value Proposition Canvas, 'Gain Creators' in the Value Map specifically correspond to which element of the Customer Profile?",
+ opts:["Customer Jobs","Pains","Gains","Products and Services"], ans:2,
+ ex:"Gain Creators describe how a product/service creates the benefits and outcomes the customer desires — i.e., they specifically address 'Gains.'"},
+
+{type:'c', q:"Which statement about the elements of Osterwalder's Business Model Canvas is INCORRECT?",
+ opts:["Customer Segments, Value Proposition, Channels and Customer Relationship relate to customer focus","Key Activities, Key Resources and Key Partners relate to infrastructure","Cost Structure and Revenue Streams together signify financial viability","Value Proposition is classified purely as a cost-side (left-hand) element of the canvas"], ans:3,
+ ex:"Value Proposition is the ninth, connecting element bridging cost-side and revenue-side blocks — it is not classified purely as a cost-side element."},
+
+{type:'c', q:"Per Johnson, Christensen & Kaggerman's (2008) extension of the business model concept (beyond Margretta's two components), which THREE components must a business model contain?",
+ opts:["Producing, Selling, Financing","Customer Value Proposition, Profit Formula, and Key Resources and Processes","Cost Structure, Revenue Streams, and Channels","Vision, Mission, and Strategy"], ans:1,
+ ex:"The chapter attributes exactly these three components — Customer Value Proposition, Profit Formula, Key Resources and Processes — to the 2008 extension."},
+
+{type:'c', q:"Which of the following is an INVALID criterion for recognising a valid market segment, as per the chapter?",
+ opts:["Homogeneous internally","Heterogeneous externally","Clearly identifiable","Must always be the single largest group possible in the market"], ans:3,
+ ex:"The chapter explicitly notes that even a small segment (e.g., limited-edition products) can be reasonable if it can be operated profitably — 'largest possible' is not a stated criterion."},
+
+{type:'c', q:"Per the Denison Organizational Culture Survey findings cited in the chapter, organisations with the highest culture scores recorded an average Return on Equity of approximately:",
+ opts:["6%","12%","21%","35%"], ans:2,
+ ex:"The chapter cites an average ROE of 21% for organisations with the highest culture scores, versus 6% for the lowest."},
+
+{type:'c', q:"Which best captures the distinction between 'Executional' and 'Structural' cost drivers as used in Strategic Cost Management?",
+ opts:["Executional drivers relate to scale/technology choices where more is not necessarily better","Executional drivers relate to execution of business activities (e.g., employee involvement, supplier links) where higher is generally better","Executional drivers apply only to short-term overhead costs under traditional costing","Executional drivers are unrelated to Strategic Cost Management altogether"], ans:1,
+ ex:"Executional cost drivers concern execution — employee utilisation, service quality, supplier/client links — where 'higher is the better,' unlike structural drivers."},
+
+{type:'c', q:"Per Prahalad and Hamel's test of 'Core Competency,' as discussed in the chapter, which THREE parameters must a competence satisfy?",
+ opts:["Relevance, Ease of imitation, Narrow application","Relevance, Difficulty of imitation, Breadth of application","Cost, Quality, Availability","Scale, Scope, Technology"], ans:1,
+ ex:"A core competence must be relevant to customer choice, difficult for rivals to imitate, and broad enough to open up multiple markets."},
+
+{type:'c', q:"In Michael Earl's framework distinguishing IS, IT and IM strategy, which strategy is described as 'Business Driven,' 'Top-Down,' and 'Demand Oriented'?",
+ opts:["IT Strategy","IS Strategy","IM Strategy","All three equally, per the framework"], ans:1,
+ ex:"Earl's table classifies IS Strategy as Business Driven, Top-Down and Demand Oriented — resolving the scope question of 'What.'"},
+
+{type:'c', q:"Which statement best captures the chapter's distinction between a 'leader' and a 'manager' in describing the Management Accountant's evolving role?",
+ opts:["Leaders maintain the status quo while managers create the vision","Leaders create vision and take risks; managers maintain status quo and control risk","Leaders and managers are treated as functionally identical in the chapter","Only managers, never leaders, can act as agents of change"], ans:1,
+ ex:"The chapter's list contrasts leaders (vision, risk-taking, change agents, long-term, coaching) directly against managers (goals, risk control, status quo, direction)."},
+
+{type:'c', q:"According to the socio-economic approach to business ethics discussed in the chapter (as opposed to the classical Milton Friedman approach), a sustainable organisation must primarily:",
+ opts:["Maximise wealth for fund providers only, regardless of social cost","Balance economic motive with the social costs of its actions across stakeholders","Ignore profitability entirely in favour of social welfare","Apply ethics only when legally mandated to do so"], ans:1,
+ ex:"The chapter explicitly contrasts the classical (shareholder-wealth-only) approach with the socio-economic approach, which balances economic motive and social costs for sustainability."}
+];
+
+/* =========================================================
+   STATE
+========================================================= */
+let state = {
+  name: '',
+  idx: 0,
+  answers: new Array(QUESTIONS.length).fill(null),
+  locked: new Array(QUESTIONS.length).fill(false),
+  startTime: null
+};
+
+const nameInput = document.getElementById('nameInput');
+const startBtn = document.getElementById('startBtn');
+
+nameInput.addEventListener('input', () => {
+  startBtn.disabled = nameInput.value.trim().length === 0;
+});
+nameInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !startBtn.disabled) startQuiz();
+});
+startBtn.addEventListener('click', startQuiz);
+
+function startQuiz() {
+  state.name = nameInput.value.trim().slice(0, 40);
+  state.startTime = Date.now();
+  showScreen('screen-quiz');
+  document.getElementById('navRight').textContent = 'Candidate: ' + state.name;
+  renderQuestion();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* =========================================================
+   QUIZ RENDERING
+========================================================= */
+function renderQuizGrid(){
+  const grid = document.getElementById('quizGrid');
+  grid.innerHTML = QUIZZES.map((q, i) => {
+    const subtopics = q.subtopics || [];
+    const delay = (i * 0.07).toFixed(2);
+    return `
+      <div class="quiz-card" style="animation-delay:${delay}s">
+        <div class="card-inner glass rounded-[22px] p-5 h-full flex flex-col justify-between" style="box-shadow:var(--card-shadow);">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="lecture-badge">LEC #${q.id}</span>
+              <span class="font-mono text-[10px] text-[var(--ink-faint)]">${q.quizName}</span>
+            </div>
+            <h3 class="font-display font-bold text-[15px] leading-snug mb-2">${escapeHtml(q.title)}</h3>
+            <p class="text-[13px] leading-relaxed text-[var(--ink-soft)] mb-4">${escapeHtml(q.summary || '')}</p>
+            <div class="mb-1">
+              <div class="font-mono text-[10px] uppercase tracking-wider text-[var(--ink-faint)] mb-2">What's covered</div>
+              <ul class="space-y-1.5 mb-5">
+                ${subtopics.map(t => `
+                  <li class="flex items-start gap-2 text-[12.5px] text-[var(--ink-soft)]">
+                    <span class="mt-1.5 w-1 h-1 rounded-full bg-cyan flex-shrink-0" style="box-shadow:0 0 4px var(--cyan);"></span>
+                    <span>${escapeHtml(t)}</span>
+                  </li>
+                `).join('')}
+              </ul>
+            </div>
+          </div>
+          <a href="${q.link}" target="_blank" rel="noopener noreferrer" class="attempt-btn justify-center w-full">
+            Attempt Test <span class="arrow">→</span>
+          </a>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+/* ---------- 3. CUSTOM CUTE CURSOR ---------- */
+
+(function initCursor(){
+  const dot = document.getElementById('cuteCursor');
+  const ring = document.getElementById('cuteCursorRing');
+  if(!dot || !ring) return;
+  let mx = window.innerWidth/2, my = window.innerHeight/2;
+  let rx = mx, ry = my;
+
+  window.addEventListener('mousemove', (e) => {
+    mx = e.clientX; my = e.clientY;
+    dot.style.left = mx + 'px';
+    dot.style.top = my + 'px';
+  }, { passive:true });
+
+  function loop(){
+    rx += (mx - rx) * 0.18;
+    ry += (my - ry) * 0.18;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  const growSelectors = 'a, button, input, .quiz-card, .pfp-btn, .sortable';
+  document.addEventListener('mouseover', (e) => {
+    if(e.target.closest(growSelectors)) document.body.classList.add('cursor-grow');
+  });
+  document.addEventListener('mouseout', (e) => {
+    if(e.target.closest(growSelectors)) document.body.classList.remove('cursor-grow');
+  });
+})();
+
+/* ---------- 4. SECRET ADMIN TRIGGER — triple click within 2000ms ---------- */
+
+(function initSecretTrigger(){
+  const pfpTrigger = document.getElementById('pfpTrigger');
+  let clickCount = 0;
+  let resetTimer = null;
+
+  pfpTrigger.addEventListener('click', () => {
+    clickCount++;
+    if(resetTimer) clearTimeout(resetTimer);
+
+    if(clickCount >= 3){
+      clickCount = 0;
+      openLoginModal();
+      return;
+    }
+
+    resetTimer = setTimeout(() => { clickCount = 0; }, 2000);
+  });
+})();
+
+/* ---------- 5. LOGIN MODAL ---------- */
+
+const loginModal = document.getElementById('loginModal');
+const loginForm = document.getElementById('loginForm');
+const adminIdInput = document.getElementById('adminIdInput');
+const adminPassInput = document.getElementById('adminPassInput');
+const loginError = document.getElementById('loginError');
+const closeModalBtn = document.getElementById('closeModalBtn');
+
+function openLoginModal(){
+  loginModal.classList.add('show');
+  loginError.classList.add('hidden');
+  adminIdInput.value = '';
+  adminPassInput.value = '';
+  adminIdInput.classList.remove('err');
+  adminPassInput.classList.remove('err');
+  setTimeout(() => adminIdInput.focus(), 350);
+}
+
+function closeLoginModal(){
+  loginModal.classList.remove('show');
+}
+
+closeModalBtn.addEventListener('click', closeLoginModal);
+loginModal.addEventListener('click', (e) => {
+  if(e.target === loginModal) closeLoginModal();
+});
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape' && loginModal.classList.contains('show')) closeLoginModal();
+});
+
+loginForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const idVal = adminIdInput.value.trim();
+  const passVal = adminPassInput.value.trim();
+
+  if(idVal === ADMIN_ID && passVal === ADMIN_PASS){
+    loginError.classList.add('hidden');
+    closeLoginModal();
+    enterAdminDashboard();
+  } else {
+    loginError.classList.remove('hidden');
+    adminIdInput.classList.add('err');
+    adminPassInput.classList.add('err');
+    const box = document.querySelector('.modal-box');
+    box.classList.remove('shake');
+    void box.offsetWidth; // restart animation
+    box.classList.add('shake');
+  }
+});
+
+/* ---------- 6. VIEW TRANSITIONS ---------- */
+
+const publicView = document.getElementById('publicView');
+const adminView = document.getElementById('adminView');
+
+function enterAdminDashboard(){
+  publicView.classList.add('hidden');
+  adminView.classList.remove('hidden');
+  adminView.classList.add('fade-view');
+  loadAdminData();
+}
+
+function exitAdminDashboard(){
+  adminView.classList.add('hidden');
+  publicView.classList.remove('hidden');
+  publicView.classList.add('fade-view');
+}
+
+document.getElementById('logoutBtn').addEventListener('click', exitAdminDashboard);
+
+/* ---------- 7. DATA FETCH ENGINE ---------- */
+
+let allRecords = []; // flattened { timestamp, quizName, userId, score, accuracy }
+let filteredRecords = [];
+let currentSort = { key: 'timestamp', dir: 'desc' };
+let currentPage = 1;
+const PAGE_SIZE = 20;
+
+async function fetchQuizSheet(quizName, retries = 2){
+  const url = `${WEB_APP_URL}?action=get&quizName=${encodeURIComponent(quizName)}`;
+  try {
+    const res = await fetch(url);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    // Accepts several common Apps Script response shapes:
+    //  - plain array of arrays:   [[ts, userId, score, accuracy], ...]
+    //  - plain array of objects:  [{timestamp, userId, score, accuracy}, ...] (any key casing)
+    //  - wrapped:                 { rows: [...] } or { data: [...] }
+    const rows = Array.isArray(data) ? data : (data.rows || data.data || []);
+
+    function pick(obj, keys){
+      for(const k of keys){
+        if(obj[k] !== undefined && obj[k] !== null && obj[k] !== '') return obj[k];
+      }
+      return undefined;
+    }
+
+    // Parses values like: 78, "78", "78%", "5% (3/64)", "3/64" into a plain number.
+    // Prefers an explicit percentage if present, otherwise falls back to the
+    // fraction (numerator/denominator) if present, otherwise a bare number.
+    function parseNumericField(val){
+      if(val === undefined || val === null || val === '') return 0;
+      if(typeof val === 'number') return val;
+      const str = String(val).trim();
+
+      const pctMatch = str.match(/(-?\d+(?:\.\d+)?)\s*%/);
+      if(pctMatch) return Number(pctMatch[1]);
+
+      const fracMatch = str.match(/(-?\d+(?:\.\d+)?)\s*\/\s*(-?\d+(?:\.\d+)?)/);
+      if(fracMatch){
+        const num = Number(fracMatch[1]);
+        const den = Number(fracMatch[2]);
+        return den ? Math.round((num / den) * 100) : num;
+      }
+
+      const plain = Number(str.replace(/[^\d.\-]/g, ''));
+      return isNaN(plain) ? 0 : plain;
+    }
+
+    return rows
+      .filter(r => r !== null && r !== undefined)
+      .map(r => {
+        if(Array.isArray(r)){
+          return {
+            timestamp: r[0],
+            quizName: quizName,
+            userId: r[1] ?? '',
+            score: parseNumericField(r[2]),
+            accuracy: parseNumericField(r[3]),
+          };
+        }
+        // object row — tolerate different key casings/names
+        return {
+          timestamp: pick(r, ['timestamp', 'Timestamp', 'time', 'Time']),
+          quizName: quizName,
+          userId: pick(r, ['userId', 'UserId', 'User ID', 'userID', 'user_id', 'User']) ?? '',
+          score: parseNumericField(pick(r, ['score', 'Score'])),
+          accuracy: parseNumericField(pick(r, ['accuracy', 'Accuracy'])),
+        };
+      })
+      .filter(r => r.timestamp);
+  } catch(err){
+    if(retries > 0){
+      await new Promise(res => setTimeout(res, 400));
+      return fetchQuizSheet(quizName, retries - 1);
+    }
+    console.warn(`Failed to fetch ${quizName}:`, err);
+    return [];
+  }
+}
+
+async function fetchAllQuizData(){
+  // Sequential-ish batches of 3 to stay comfortably under Apps Script rate limits
+  const batchSize = 3;
+  const results = [];
+  for(let i = 0; i < QUIZZES.length; i += batchSize){
+    const batch = QUIZZES.slice(i, i + batchSize);
+    const batchResults = await Promise.all(batch.map(q => fetchQuizSheet(q.quizName)));
+    results.push(...batchResults);
+  }
+  return results.flat();
+}
+
+const adminLoading = document.getElementById('adminLoading');
+const adminContent = document.getElementById('adminContent');
+const adminError = document.getElementById('adminError');
+
+async function loadAdminData(){
+  adminContent.classList.add('hidden');
+  adminError.classList.add('hidden');
+  adminLoading.classList.remove('hidden');
+
+  if(!WEB_APP_URL || WEB_APP_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL"){
+    adminLoading.classList.add('hidden');
+    adminError.classList.remove('hidden');
+    return;
+  }
+
+  try {
+    allRecords = await fetchAllQuizData();
+    adminLoading.classList.add('hidden');
+    adminContent.classList.remove('hidden');
+    applyFiltersAndRender();
+    animateKpis();
+  } catch(err){
+    console.error(err);
+    adminLoading.classList.add('hidden');
+    adminError.classList.remove('hidden');
+  }
+}
+
+document.getElementById('retryBtn').addEventListener('click', loadAdminData);
+document.getElementById('refreshBtn').addEventListener('click', () => {
+  const icon = document.getElementById('refreshIcon');
+  icon.style.transition = 'transform 0.5s ease';
+  icon.style.transform = 'rotate(360deg)';
+  setTimeout(() => { icon.style.transform = 'rotate(0deg)'; }, 500);
+  loadAdminData();
+});
+
+/* ---------- 8. KPI CALC + COUNT-UP ANIMATION ---------- */
+
+function computeKpis(){
+  const total = allRecords.length;
+  const avgScore = total ? (allRecords.reduce((s, r) => s + r.score, 0) / total) : 0;
+  const avgAcc = total ? (allRecords.reduce((s, r) => s + r.accuracy, 0) / total) : 0;
+  const activeQuizzes = new Set(allRecords.map(r => r.quizName)).size;
+  return { total, avgScore, avgAcc, activeQuizzes };
+}
+
+function countUp(el, target, decimals = 0, duration = 1500){
+  const start = 0;
+  const startTime = performance.now();
+  function tick(now){
+    const progress = Math.min((now - startTime) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const val = start + (target - start) * eased;
+    el.textContent = decimals > 0 ? val.toFixed(decimals) : Math.round(val);
+    if(progress < 1) requestAnimationFrame(tick);
+    else el.textContent = decimals > 0 ? target.toFixed(decimals) : Math.round(target);
+  }
+  requestAnimationFrame(tick);
+}
+
+function animateKpis(){
+  const k = computeKpis();
+  countUp(document.getElementById('kpiTotal'), k.total, 0);
+  countUp(document.getElementById('kpiAvgScore'), k.avgScore, 1);
+  countUp(document.getElementById('kpiAvgAcc'), k.avgAcc, 1);
+  countUp(document.getElementById('kpiActiveQuizzes'), k.activeQuizzes, 0);
+}
+
+/* ---------- 9. TABLE: SEARCH, SORT, PAGINATE, STATUS PILLS ---------- */
+
+function pillFor(value){
+  const v = Number(value);
+  if(v >= 80) return `<span class="pill pill-green">${v}%</span>`;
+  if(v >= 50) return `<span class="pill pill-yellow">${v}%</span>`;
+  return `<span class="pill pill-red">${v}%</span>`;
+}
+function scorePillFor(value){
+  const v = Number(value);
+  if(v >= 80) return `<span class="pill pill-green">${v}</span>`;
+  if(v >= 50) return `<span class="pill pill-yellow">${v}</span>`;
+  return `<span class="pill pill-red">${v}</span>`;
+}
+
+function applyFiltersAndRender(){
+  const query = document.getElementById('searchInput').value.trim().toLowerCase();
+  filteredRecords = allRecords.filter(r =>
+    !query || r.userId.toString().toLowerCase().includes(query) || r.quizName.toLowerCase().includes(query)
+  );
+
+  filteredRecords.sort((a, b) => {
+    let av = a[currentSort.key], bv = b[currentSort.key];
+    if(currentSort.key === 'timestamp'){
+      av = new Date(av).getTime() || 0;
+      bv = new Date(bv).getTime() || 0;
+    }
+    if(av < bv) return currentSort.dir === 'asc' ? -1 : 1;
+    if(av > bv) return currentSort.dir === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  currentPage = Math.min(currentPage, Math.max(1, Math.ceil(filteredRecords.length / PAGE_SIZE)));
+  renderTable();
+  updateSortArrows();
+}
+
+function renderTable(){
+  const tbody = document.getElementById('tableBody');
+  const emptyState = document.getElementById('emptyState');
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const pageRows = filteredRecords.slice(start, start + PAGE_SIZE);
+
+  if(pageRows.length === 0){
+    tbody.innerHTML = '';
+    emptyState.classList.remove('hidden');
+  } else {
+    emptyState.classList.add('hidden');
+    tbody.innerHTML = pageRows.map(r => `
+      <tr>
+        <td class="px-5 py-3 font-mono text-xs text-[var(--ink-faint)] whitespace-nowrap">${escapeHtml(String(r.timestamp))}</td>
+        <td class="px-5 py-3 font-medium">${escapeHtml(r.quizName)}</td>
+        <td class="px-5 py-3">${escapeHtml(String(r.userId))}</td>
+        <td class="px-5 py-3">${scorePillFor(r.score)}</td>
+        <td class="px-5 py-3">${pillFor(r.accuracy)}</td>
+      </tr>
+    `).join('');
+  }
+
+  const totalPages = Math.max(1, Math.ceil(filteredRecords.length / PAGE_SIZE));
+  document.getElementById('pageLabel').textContent = `${currentPage} / ${totalPages}`;
+  document.getElementById('rowCountLabel').textContent = `${filteredRecords.length} row${filteredRecords.length !== 1 ? 's' : ''}`;
+  document.getElementById('prevPageBtn').disabled = currentPage <= 1;
+  document.getElementById('nextPageBtn').disabled = currentPage >= totalPages;
+  document.getElementById('prevPageBtn').style.opacity = currentPage <= 1 ? 0.4 : 1;
+  document.getElementById('nextPageBtn').style.opacity = currentPage >= totalPages ? 0.4 : 1;
+}
+
+function updateSortArrows(){
+  document.querySelectorAll('.sortable').forEach(th => {
+    const arrow = th.querySelector('.sort-arrow');
+    if(th.dataset.sort === currentSort.key){
+      arrow.textContent = currentSort.dir === 'asc' ? '↑' : '↓';
+    } else {
+      arrow.textContent = '';
+    }
+  });
+}
+
+document.getElementById('searchInput').addEventListener('input', () => {
+  currentPage = 1;
+  applyFiltersAndRender();
+});
+
+document.querySelectorAll('.sortable').forEach(th => {
+  th.addEventListener('click', () => {
+    const key = th.dataset.sort;
+    if(currentSort.key === key){
+      currentSort.dir = currentSort.dir === 'asc' ? 'desc' : 'asc';
+    } else {
+      currentSort = { key, dir: 'desc' };
+    }
+    applyFiltersAndRender();
+  });
+});
+
+document.getElementById('prevPageBtn').addEventListener('click', () => {
+  if(currentPage > 1){ currentPage--; renderTable(); }
+});
+document.getElementById('nextPageBtn').addEventListener('click', () => {
+  const totalPages = Math.max(1, Math.ceil(filteredRecords.length / PAGE_SIZE));
+  if(currentPage < totalPages){ currentPage++; renderTable(); }
+});
+
+/* ---------- 10. RIPPLE EFFECT (fires anywhere on the page) ---------- */
+
+const rippleLayer = document.createElement('div');
+rippleLayer.id = 'rippleLayer';
+document.body.appendChild(rippleLayer);
+
+function spawnRipple(x, y){
+  const wave = document.createElement('span');
+  wave.className = 'ripple-wave';
+  const size = Math.max(window.innerWidth, window.innerHeight) * 0.45;
+  wave.style.width = wave.style.height = size + 'px';
+  wave.style.left = x + 'px';
+  wave.style.top = y + 'px';
+  rippleLayer.appendChild(wave);
+  wave.addEventListener('animationend', () => wave.remove());
+  // Safety net in case animationend doesn't fire
+  setTimeout(() => { if(wave.isConnected) wave.remove(); }, 1100);
+}
+
+document.addEventListener('pointerdown', (e) => {
+  if(e.button !== undefined && e.button !== 0) return; // left click / primary touch only
+  spawnRipple(e.clientX, e.clientY);
+}, { passive: true });
+
+/* ---------- 11. INIT ---------- */
+
+renderQuizGrid();
+document.getElementById('pfpImg').src = "data:image/jpeg;base64,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";
+
+</script>
+
+</body>
+</html>
